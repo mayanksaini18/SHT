@@ -14,6 +14,11 @@ app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
+//heath cheaker 
+app.get("/",(req,res)=>{
+    res.json({msg : "server is running"})
+})
+
 app.use('/api/auth', authRoutes);
 app.use('/api/habits', habitRoutes);
 
