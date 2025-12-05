@@ -20,6 +20,7 @@ export default function Dashboard() {
 
   async function fetchHabits() {
     try {
+      console.log("fetching habits")
       const res = await api.get('/habits');
       setHabits(res.data);
     } catch (err) {
