@@ -12,10 +12,17 @@ exports.register = async (req, res, next) => {
 
     const accessToken = createAccessToken({ id: user._id });
     const refreshToken = createRefreshToken({ id: user._id });
+
+    // Stores refresh token in database
+   // Helps validate refresh requests
     user.refreshToken = refreshToken;
     await user.save();
 
+    // Creates cookie named jid
+   // httpOnly = cannot be accessed by JavaScript
+  // sameSite: 'lax' = safe from CSRF
     res.cookie('jid', refreshToken, { httpOnly: true, sameSite: 'lax' });
+
     res.json({ accessToken, user: { id: user._id, email: user.email, name: user.name } });
   } catch (err) { next(err); }
 };
@@ -35,6 +42,7 @@ exports.login = async (req, res, next) => {
     await user.save();
 
     res.cookie('jid', refreshToken, { httpOnly: true, sameSite: 'lax' });
+    
     res.json({ accessToken, user: { id: user._id, email: user.email, name: user.name, xp: user.xp, level: user.level } });
   } catch (err) { next(err); }
 };
