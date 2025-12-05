@@ -67,7 +67,7 @@ export default function Dashboard() {
       <header className="header">
         <div>
           <h1>Good morning, {user?.name || 'User'}</h1>
-          <p className="muted">XP: {user?.xp ?? 0} — Level: {user?.level ?? 1}</p>
+          <p className="muted">XP: {user?.xp ?? 0}  Level: {user?.level ?? 1}</p>
         </div>
         <div>
           <button className="btn-ghost" onClick={logout}>Logout</button>
