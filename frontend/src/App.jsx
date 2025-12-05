@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import CreateHabit from './pages/CreateHabit';
 import { AuthContext } from './contexts/AuthContext';
 
 export default function App() {
@@ -20,6 +21,7 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/" element={user ? <Dashboard /> : <Navigate to="/login" />} />
+       <Route path="/createhabit" element={<CreateHabit />} />
     </Routes>
   );
 }
