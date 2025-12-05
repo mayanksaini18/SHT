@@ -60,3 +60,14 @@ exports.refreshToken = async (req, res, next) => {
     res.json({ accessToken });
   } catch (err) { next(err); }
 };
+
+exports.getMe = async (req, res) => {
+  res.json({
+    id: req.user._id,
+    name: req.user.name,
+    email: req.user.email,
+    xp: req.user.xp,
+    level: req.user.level,
+  });
+};
+
