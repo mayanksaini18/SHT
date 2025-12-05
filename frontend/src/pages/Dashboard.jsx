@@ -5,17 +5,20 @@ import HabitCard from '../components/HabitCard';
 import { Line } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend } from 'chart.js';
 
+import { Link, useNavigate } from 'react-router-dom';
+
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
 export default function Dashboard() {
   const { user, setUser, logout } = useContext(AuthContext);
   const [habits, setHabits] = useState([]);
   const [chartData, setChartData] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchHabits();
     fetchWeeklyAnalytics();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function fetchHabits() {
@@ -57,11 +60,12 @@ export default function Dashboard() {
     } catch (err) {
       // fallback dummy
       setChartData({
-        labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-        datasets: [{ label: 'Check-ins', data: [1,2,3,2,4,1,0], fill: false }]
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{ label: 'Check-ins', data: [1, 2, 3, 2, 4, 1, 0], fill: false }]
       });
     }
   }
+
 
   return (
     <div className="page">
@@ -71,6 +75,7 @@ export default function Dashboard() {
           <p className="muted">XP: {user?.xp ?? 0}  Level: {user?.level ?? 1}</p>
         </div>
         <div>
+          <button className="btn" onClick={() => navigate('/CreateHabit')}>Create Habit</button>
           <button className="btn-ghost" onClick={logout}>Logout</button>
         </div>
       </header>
