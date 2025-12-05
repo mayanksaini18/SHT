@@ -28,14 +28,14 @@ export const AuthProvider = ({ children }) => {
     // Fetch user if token exists
     const fetchUser = async () => {
       try {
-        const res = await api.get("/auth/me");
+        const res = await api.get("/api/auth/me");
         setUser(res.data);
         localStorage.setItem("user", JSON.stringify(res.data));
       } catch (err) {
         console.log("Token expired -> trying refresh");
         try {
           // Try refresh token (cookie-based)
-          const refreshRes = await api.post("/auth/refresh");
+          const refreshRes = await api.post("/api/auth/refresh");
           localStorage.setItem("accessToken", refreshRes.data.accessToken);
 
           const profile = await api.get("/auth/me");
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
   // LOGIN
   // ============================================
   const login = async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
+    const res = await api.post('/api/auth/login', { email, password });
     localStorage.setItem('accessToken', res.data.accessToken);
     setUser(res.data.user);
     localStorage.setItem("user", JSON.stringify(res.data.user));
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
   // REGISTER
   // ============================================
   const register = async (data) => {
-    const res = await api.post('/auth/register', data);
+    const res = await api.post('/api/auth/register', data);
     localStorage.setItem('accessToken', res.data.accessToken);
     setUser(res.data.user);
     localStorage.setItem("user", JSON.stringify(res.data.user));

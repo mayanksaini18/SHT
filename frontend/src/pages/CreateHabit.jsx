@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import api from '../api/api';
+import api from '../../apiClient';
 import { AuthContext } from '../contexts/AuthContext';
 import './CreateHabit.css';
 
@@ -21,7 +21,7 @@ function CreateHabit() {
     if (!user) throw new Error('User not logged in');
 
     const payload = { title, description, frequency };
-    const res = await api.post('/habits', payload);
+    const res = await api.post('/api/habits', payload);
     return res.data;
   }
 
@@ -36,6 +36,9 @@ function CreateHabit() {
     setLoading(true);
 
     try {
+      // --- CHECKPOINT: Log data before sending ---
+      console.log('Creating habit with payload:', { title: title.trim(), description: description.trim(), frequency });
+
       const created = await startNewHabit(title.trim(), description.trim(), frequency);
       setNewHabits(prev => [created, ...prev]);
 
@@ -54,7 +57,8 @@ function CreateHabit() {
       // auto-hide success after 3s
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
-      console.error(error);
+      // --- CHECKPOINT: Log the ENTIRE error object ---
+      console.error('Failed to create habit. Full error object:', error);
       setErr(error.response?.data?.message || error.message || 'Failed to create habit');
       // auto-hide error after 4s
       setTimeout(() => setErr(''), 4000);

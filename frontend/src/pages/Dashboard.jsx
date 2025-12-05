@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
-import api from '../api/api';
+import api from '../../apiClient';
+
 import { AuthContext } from '../contexts/AuthContext';
 import HabitCard from '../components/HabitCard';
 import { Line } from 'react-chartjs-2';
@@ -24,7 +25,7 @@ export default function Dashboard() {
   async function fetchHabits() {
     try {
       console.log("fetching habits")
-      const res = await api.get('/habits');
+      const res = await api.get('/api/habits');
       setHabits(res.data);
     } catch (err) {
       console.error(err);
@@ -33,7 +34,7 @@ export default function Dashboard() {
 
   async function handleCheckin(habitId) {
     try {
-      const res = await api.post(`/habits/${habitId}/checkin`);
+      const res = await api.post(`/api/habits/${habitId}/checkin`);
       // update xp/level in context and localStorage
       if (res.data?.user) {
         setUser(prev => ({ ...prev, xp: res.data.user.xp, level: res.data.user.level }));
@@ -50,7 +51,7 @@ export default function Dashboard() {
   async function fetchWeeklyAnalytics() {
     try {
       // This endpoint should return an array of last 7 days counts e.g. [{day:'Mon', count:2}, ...]
-      const res = await api.get('/habits/analytics/weekly');
+      const res = await api.get('/api/habits/analytics/weekly');
       const labels = res.data.map(d => d.day);
       const data = res.data.map(d => d.count);
       setChartData({

@@ -10,7 +10,19 @@ const errorHandler = require('./middlewares/errorHandler');
 const app = express();
 connectDB();
 
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+// --- CHECKPOINT: Log critical environment variables on start ---
+console.log('Server starting...');
+console.log(`CLIENT_URL for CORS: ${process.env.CLIENT_URL}`);
+console.log(`MONGO_URI loaded: ${process.env.MONGO_URI ? 'Yes' : 'No'}`);
+
+const corsOptions = {
+  origin: process.env.CLIENT_URL,
+  credentials: true,
+};
+
+console.log('CORS options:', corsOptions);
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 

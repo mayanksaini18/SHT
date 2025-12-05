@@ -10,10 +10,14 @@ export default function Register() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    // --- CHECKPOINT: Log form data before sending ---
+    console.log('Submitting registration form:', form);
     try {
       await register(form);
       navigate('/');
     } catch (error) {
+      // --- CHECKPOINT: Log the ENTIRE error object ---
+      console.error('Registration failed. Full error object:', error);
       setErr(error.response?.data?.message || 'Registration failed');
     }
   }

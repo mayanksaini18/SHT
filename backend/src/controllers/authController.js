@@ -3,10 +3,15 @@ const User = require('../models/User');
 const { createAccessToken, createRefreshToken } = require('../utils/tokens');
 
 exports.register = async (req, res, next) => {
+  // --- CHECKPOINT: Register function entry ---
+  console.log('--- Register attempt started ---');
+  console.log('Request body:', req.body);
   try {
     const { name, email, password } = req.body;
-    if (await User.findOne({ email })) return res.status(400).json({ message: 'Email exists' });
-
+    if (await User.findOne({ email })) {
+      console.log(`Registration failed: Email already exists for ${email}`);
+      return res.status(400).json({ message: 'Email exists' });
+    }
     const hashed = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hashed });
 
@@ -23,24 +28,42 @@ exports.register = async (req, res, next) => {
   // sameSite: 'lax' = safe from CSRF
     res.cookie('jid', refreshToken, { httpOnly: true, sameSite: 'lax' });
 
+    // --- CHECKPOINT: Registration successful ---
+    console.log(`Registration successful for ${user.email}. Sending tokens.`);
     res.json({ accessToken, user: { id: user._id, email: user.email, name: user.name } });
-  } catch (err) { next(err); }
+  } catch (err) {
+    // --- CHECKPOINT: Catch any unexpected registration error ---
+    console.error('---!!! UNEXPECTED REGISTER ERROR !!!---', err);
+    next(err);
+  }
 };
 
 exports.login = async (req, res, next) => {
+  // --- CHECKPOINT: Login function entry ---
+  console.log('--- Login attempt started ---');
+  console.log('Request body:', req.body);
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+    if (!user) {
+      console.log(`Login failed: No user found for email: ${email}`);
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+    console.log(`User found: ${user.email}`);
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(400).json({ message: 'Invalid credentials' });
+    if (!valid) {
+      console.log(`Login failed: Password mismatch for user: ${email}`);
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+    console.log(`Password matched for user: ${email}`);
 
     const accessToken = createAccessToken({ id: user._id });
     const refreshToken = createRefreshToken({ id: user._id });
     user.refreshToken = refreshToken;
     await user.save();
 
+    console.log(`Login successful for user: ${email}. Setting cookie and sending tokens.`);
     res.cookie('jid', refreshToken, { httpOnly: true, sameSite: 'lax' });
     
     res.json({ accessToken, user: { id: user._id, email: user.email, name: user.name, xp: user.xp, level: user.level } });
@@ -70,4 +93,3 @@ exports.getMe = async (req, res) => {
     level: req.user.level,
   });
 };
-
