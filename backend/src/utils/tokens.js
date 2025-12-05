@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 
+// Payload contains only the user's ID
 const createAccessToken = (payload) => {
   return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
 };
