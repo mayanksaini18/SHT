@@ -4,7 +4,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import HabitCard from '../../components/HabitCard';
 import { Line } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend } from 'chart.js';
-import '../dashboardPage/Dashboard.css';
+import './dashboard.css';
 
 import { Link, useNavigate } from 'react-router-dom';
 

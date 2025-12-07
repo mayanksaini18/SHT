@@ -13,17 +13,19 @@ export default function App() {
 
   useEffect(() => {
     // If not logged in, go to login
-    if (!user) navigate('/Welcome');
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!user) {
+      navigate('/welcome');
+    }
+    // The navigate function is stable and doesn't need to be a dependency.
+  }, [user]);
 
   return (
     <Routes>
       <Route path="/welcome" element={<Welcome />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/" element={user ? <Dashboard /> : <Navigate to="/Welcome" />} />
-       <Route path="/createhabit" element={<CreateHabit />} />
+      <Route path="/" element={user ? <Dashboard /> : <Navigate to="/welcome" replace />} />
+      <Route path="/create-habit" element={user ? <CreateHabit /> : <Navigate to="/login" replace />} />
     </Routes>
   );
 }
