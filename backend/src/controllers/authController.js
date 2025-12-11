@@ -21,7 +21,12 @@ exports.register = async (req, res, next) => {
     // Creates cookie named jid
    // httpOnly = cannot be accessed by JavaScript
   // sameSite: 'lax' = safe from CSRF
-    res.cookie('jid', refreshToken, { httpOnly: true, sameSite: 'lax' });
+   res.cookie('jid', refreshToken, {
+  httpOnly: true,
+  secure: isProd, 
+  sameSite: isProd ? 'none' : 'lax',
+  maxAge: 7 * 24 * 60 * 60 * 1000
+});
 
     res.json({ accessToken, user: { id: user._id, email: user.email, name: user.name } });
   } catch (err) { next(err); }
