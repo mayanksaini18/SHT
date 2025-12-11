@@ -1,52 +1,75 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import './welcome.css';
-
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator"; // optional, if you generated it
+// If you don't have Separator, remove the import and <Separator /> usage below
 
 export default function Welcome() {
   const navigate = useNavigate();
 
-  const handleGetStarted = () => {
-    // change '/signup' to whatever your create-account route is
-    navigate('/register');
-  };
-
-  const handleAlreadyAccount = () => {
-    // change '/login' to your login route
-    navigate('/login');
-  };
+  const handleGetStarted = () => navigate("/register");
+  const handleAlreadyAccount = () => navigate("/login");
 
   return (
-    <div className="welcome-page">
-      <div className="welcome-content">
-        <p className="welcome-tagline">Build healthy habits with us</p>
+    <div className="min-h-screen flex items-center justify-center p-6">
+     
+      
+        <section className="bg-neutral-900 text-white flex flex-col items-center justify-center gap-6 p-10">
+          <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-center">
+            Build healthy<br />habits with us
+          </h1>
 
-        {/* Mascot / illustration */}
-        {/* Replace src with your own image file */}
-        <div className="welcome-illustration">
-          {/* If you have an image: */}
-          {/* <img src="/images/mascot.png" alt="Healthy habit mascot" /> */}
-          {/* Temporary emoji mascot */}
-          <span role="img" aria-label="mascot"></span>
-        </div>
+          {/* big decorative circle (replace with image if you want) */}
+          <div
+            aria-hidden="true"
+            className="w-48 h-48 md:w-64 md:h-64 rounded-full bg-amber-400/95 shadow-xl flex items-center justify-center"
+          >
+            {/* optional emoji / image inside circle */}
+            {/* <span className="text-4xl md:text-5xl">🌱</span> */}
+          </div>
 
-        <button className="welcome-primary-btn" onClick={handleGetStarted}>
-          Get started
-        </button>
+          <p className="text-sm text-neutral-300 text-center max-w-xs">
+            Small steps every day make big changes track habits, build streaks,
+            and feel better.
+          </p>
+        </section>
 
-        <button
-          className="welcome-secondary-link"
-          type="button"
-          onClick={handleAlreadyAccount}
-        >
-          I have an account
-        </button>
+        {/* RIGHT: Card with CTAs / small form */}
+        <aside className="flex items-center justify-center p-8 bg-white">
+          <Card className="w-full max-w-sm p-6">
+            <h2 className="text-2xl font-bold mb-1">Welcome</h2>
+            <p className="text-sm text-slate-500 mb-6">
+              Create an account to save your habits and progress.
+            </p>
 
-        <p className="welcome-terms">
-          By starting or signing in, you agree<br />
-          to our <span className="welcome-terms-link">Terms of use</span>
-        </p>
+            {/* Primary CTA */}
+            <Button
+              onClick={handleGetStarted}
+              className="w-full mb-3"
+              // if your Button accepts `variant` prop (shadcn default), you can use that too
+            >
+              Create account
+            </Button>
+
+            {/* Secondary link */}
+            <Button
+              variant="ghost"
+              onClick={handleAlreadyAccount}
+              className="w-full"
+            >
+              I have an account
+            </Button>
+
+            <Separator className="my-6" />
+
+            <p className="text-xs text-slate-500 text-center">
+              By starting or signing in, you agree to our{" "}
+              <button className="text-sky-600 underline">Terms of use</button>.
+            </p>
+          </Card>
+        </aside>
       </div>
-    </div>
+    
   );
 }
