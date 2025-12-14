@@ -1,10 +1,20 @@
 import React, { useEffect, useState, useContext } from 'react';
 import api from '../../api/api';
 import { AuthContext } from '../../contexts/AuthContext';
-import HabitCard from '../../components/HabitCard';
+import HabitCard from '../../components/HabitTitle';
 import { Line } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend } from 'chart.js';
-import './dashboard.css';
+
+
+
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Toaster } from "@/components/ui/sonner"
+import { toast } from "sonner"
+
+
 
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -14,7 +24,7 @@ export default function Dashboard() {
   const { user, setUser, logout } = useContext(AuthContext);
   const [habits, setHabits] = useState([]);
   const [chartData, setChartData] = useState(null);
-
+  
   // index of selected day pill (only for UI highlight)
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const navigate = useNavigate();
@@ -45,9 +55,12 @@ export default function Dashboard() {
       }
       await fetchHabits();
       // show a small toast / alert
-      alert('Checked in! +10 XP');
+     toast({
+  title: "Habit completed",
+  description: "+10 XP added",
+});
     } catch (err) {
-      alert(err.response?.data?.message || 'Check-in failed');
+      toast.error(err.response?.data?.message || 'Check-in failed');
     }
   }
 
@@ -88,47 +101,71 @@ export default function Dashboard() {
 
   return (
     <div className="page">
-      <header className="header">
+       <div className="flex items-center justify-between mb-4">
         <div>
-          {/* avatar circle with first letter of name */}
-          <div className="avatar-circle">
-            {firstLetter}
+          <p className="text-sm text-slate-500">Good morning,</p>
+          <h1 className="text-2xl font-bold">{user?.name}</h1>
+          <div className="flex gap-2 mt-1">
+            <Badge>XP {user?.xp ?? 0}</Badge>
+            <Badge variant="outline">Level {user?.level ?? 1}</Badge>
+            
           </div>
-          <h1>Good morning, {user?.name || 'User'}</h1>
-          <p className="muted">XP: {user?.xp ?? 0}  Level: {user?.level ?? 1}</p>
         </div>
-        <div>
-          <button className="btn" onClick={() => navigate('/CreateHabit')}>Create Habit</button>
-          <button className="btn-ghost" onClick={logout}>Logout</button>
-        </div>
-      </header>
-       {/* ---------- CALENDAR STRIP ---------- */}
-      <section className="day-strip">
+
+        <Avatar>
+          <AvatarFallback className="bg-slate-900 text-white">
+            {firstLetter}
+          </AvatarFallback>
+        </Avatar>
+        
+      </div>
+       {/* DATE STRIP */}
+      <div className="flex gap-2 overflow-x-auto mb-5">
         {dayPills.map((day, idx) => (
-          <button
+          <Button
             key={day.key}
-            className={`day-pill ${idx === selectedDayIndex ? 'active' : ''}`}
+            variant={idx === selectedDayIndex ? "default" : "outline"}
+            className="flex flex-col h-14 min-w-[52px] rounded-xl"
             onClick={() => setSelectedDayIndex(idx)}
-            type="button"
           >
-            <span className="day-pill-weekday">{day.weekday}</span>
-            <span className="day-pill-date">{day.date}</span>
-          </button>
+            <span className="text-xs">{day.weekday}</span>
+            <span className="font-bold">{day.date}</span>
+          </Button>
+
         ))}
-      </section>
-
+        
+      </div>
+      
       <main>
-        <section className="grid">
-          {habits.map(h => (
-            <HabitCard key={h._id} habit={h} onCheckin={() => handleCheckin(h._id)} />
-          ))}
-        </section>
+        
+        <div className="grid grid-cols-2 gap-4 mb-6">
+        {habits.map((habit, idx) => (
+          <HabitCard
+            key={habit._id}
+            habit={habit}
+            index={idx}
+            onCheckin={() => handleCheckin(habit._id)}
+          />
+        ))}
+      </div>
+        <Separator />
 
+      </main>
         <section className="chart-card">
           <h3>Weekly activity</h3>
           {chartData ? <Line data={chartData} /> : <p>Loading...</p>}
         </section>
-      </main>
+        <Separator />
+
+<br />
+        
+       {/* ACTIONS */}
+      <div className="flex justify-between">
+        <Button onClick={() => navigate("/CreateHabit")}>+ Add Habit</Button>
+        <Button variant="destructive" onClick={logout}>
+          Logout
+        </Button>
+      </div>
     </div>
   );
 }
