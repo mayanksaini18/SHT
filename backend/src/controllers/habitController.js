@@ -38,6 +38,7 @@ exports.checkIn = async (req, res, next) => {
 
     // compute streak: if last checkin was yesterday -> +1 else reset to 1
     const lastCheckin = habit.checkins.length ? new Date(habit.checkins[habit.checkins.length - 1].date) : null;
+    
     let newStreak = 1;
     if (lastCheckin) {
       const diff = Math.floor((today - lastCheckin) / (1000 * 60 * 60 * 24));
