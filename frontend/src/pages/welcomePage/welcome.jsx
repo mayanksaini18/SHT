@@ -1,75 +1,116 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator"; // optional, if you generated it
-// If you don't have Separator, remove the import and <Separator /> usage below
 
 export default function Welcome() {
   const navigate = useNavigate();
 
-  const handleGetStarted = () => navigate("/register");
-  const handleAlreadyAccount = () => navigate("/login");
-
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-     
-      
-        <section className="bg-neutral-900 text-white flex flex-col items-center justify-center gap-6 p-10">
-          <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-center">
-            Build healthy<br />habits with us
-          </h1>
-
-          {/* big decorative circle (replace with image if you want) */}
-          <div
-            aria-hidden="true"
-            className="w-48 h-48 md:w-64 md:h-64 rounded-full bg-amber-400/95 shadow-xl flex items-center justify-center"
-          >
-            {/* optional emoji / image inside circle */}
-            {/* <span className="text-4xl md:text-5xl">🌱</span> */}
+    <div className="min-h-screen flex bg-white text-slate-900 overflow-hidden">
+      {/* LEFT SIDE */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div className="w-full max-w-md space-y-8">
+          {/* Header */}
+          <div className="space-y-2">
+            <h1 className="text-3xl font-semibold tracking-tight">
+              Create an account
+            </h1>
+            <p className="text-sm text-slate-500">
+              Already have an account?{" "}
+              <button
+                onClick={() => navigate("/login")}
+                className="text-emerald-600 hover:underline font-medium"
+              >
+                Login
+              </button>
+            </p>
           </div>
 
-          <p className="text-sm text-neutral-300 text-center max-w-xs">
-            Small steps every day make big changes track habits, build streaks,
-            and feel better.
+          {/* CTA Buttons */}
+          <div className="space-y-4">
+            <Button
+              onClick={() => navigate("/register")}
+              className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-medium tracking-wide"
+            >
+              Start for free →
+            </Button>
+
+           
+           <Button
+              variant="outline"
+              className="w-full h-12 border-slate-300 text-slate-900 hover:bg-slate-50 flex items-center justify-center gap-3"
+            >
+              <svg
+                className="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M12 .5C5.73.5.5 5.74.5 12.02c0 5.11 3.29 9.44 7.86 10.97.57.1.78-.25.78-.55v-2.02c-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.18 1.18.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.58.23 2.75.11 3.04.74.81 1.19 1.84 1.19 3.1 0 4.43-2.69 5.4-5.25 5.69.41.35.78 1.04.78 2.1v3.12c0 .31.2.66.79.55 4.56-1.53 7.85-5.86 7.85-10.97C23.5 5.74 18.27.5 12 .5z" />
+              </svg>
+              Sign up with GitHub
+            </Button>
+{/* Apple */}
+            <Button
+              variant="outline"
+              className="w-full h-12 border-slate-300 hover:bg-slate-50 flex gap-3"
+            >
+              <svg
+                className="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M16.6 13.2c0-2.2 1.8-3.3 1.9-3.4-1-1.5-2.6-1.7-3.2-1.7-1.4-.1-2.7.8-3.4.8-.7 0-1.8-.8-3-.8-1.5 0-3 .9-3.8 2.2-1.6 2.7-.4 6.7 1.1 8.9.7 1.1 1.6 2.4 2.8 2.3 1.1 0 1.5-.7 2.9-.7s1.7.7 2.9.7c1.2 0 2-1.1 2.7-2.2.9-1.3 1.2-2.6 1.2-2.7-.1 0-2.3-.9-2.3-3.6zM14.4 6.3c.6-.8 1-1.9.9-3-.9 0-2 .6-2.6 1.3-.6.7-1 1.8-.9 2.9 1 .1 2-.5 2.6-1.2z" />
+              </svg>
+              Sign up with Apple
+            </Button>
+             {/* Google */}
+            <Button
+              variant="outline"
+              className="w-full h-12 border-slate-300 hover:bg-slate-50 flex gap-3"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 48 48">
+                <path
+                  fill="#EA4335"
+                  d="M24 9.5c3.54 0 6.03 1.54 7.41 2.82l5.05-4.91C33.27 4.5 28.99 2.5 24 2.5 14.9 2.5 7.25 8.58 4.7 16.77l6.24 4.84C12.39 14.2 17.74 9.5 24 9.5z"
+                />
+                <path
+                  fill="#4285F4"
+                  d="M46.1 24.5c0-1.64-.15-3.21-.43-4.73H24v9.01h12.4c-.54 2.9-2.16 5.35-4.6 7.02l7.05 5.46c4.12-3.8 6.25-9.38 6.25-16.76z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M10.94 28.39A14.5 14.5 0 0 1 10 24c0-1.53.27-3.01.75-4.39l-6.24-4.84A23.95 23.95 0 0 0 2 24c0 3.84.93 7.47 2.57 10.78l6.37-6.39z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M24 45.5c5 0 9.19-1.65 12.25-4.49l-7.05-5.46c-1.96 1.32-4.48 2.1-5.2 2.1-6.2 0-11.46-4.68-13.06-10.87l-6.37 6.39C7.26 40.92 14.9 45.5 24 45.5z"
+                />
+              </svg>
+              Sign up with Google
+            </Button>
+          </div>
+
+          {/* Footer */}
+          <p className="text-xs text-slate-500 leading-relaxed">
+            By signing up, you agree to our{" "}
+            <span className="underline cursor-pointer hover:text-slate-700">
+              Terms of Service
+            </span>{" "}
+            and{" "}
+            <span className="underline cursor-pointer hover:text-slate-700">
+              Privacy Policy
+            </span>.
           </p>
-        </section>
-
-        {/* RIGHT: Card with CTAs / small form */}
-        <aside className="flex items-center justify-center p-8 bg-white">
-          <Card className="w-full max-w-sm p-6">
-            <h2 className="text-2xl font-bold mb-1">Welcome</h2>
-            <p className="text-sm text-slate-500 mb-6">
-              Create an account to save your habits and progress.
-            </p>
-
-            {/* Primary CTA */}
-            <Button
-              onClick={handleGetStarted}
-              className="w-full mb-3"
-              // if your Button accepts `variant` prop (shadcn default), you can use that too
-            >
-              Create account
-            </Button>
-
-            {/* Secondary link */}
-            <Button
-              variant="ghost"
-              onClick={handleAlreadyAccount}
-              className="w-full"
-            >
-              I have an account
-            </Button>
-
-            <Separator className="my-6" />
-
-            <p className="text-xs text-slate-500 text-center">
-              By starting or signing in, you agree to our{" "}
-              <button className="text-sky-600 underline">Terms of use</button>.
-            </p>
-          </Card>
-        </aside>
+        </div>
       </div>
-    
+
+      {/* RIGHT SIDE IMAGE */}
+      <div className="hidden lg:block lg:w-1/2 relative bg-slate-100">
+        <img
+          src="https://images.unsplash.com/photo-1569230919100-d3fd5e1132f4?q=80&w=1036&auto=format&fit=crop"
+          alt="Nature"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </div>
+    </div>
   );
 }
