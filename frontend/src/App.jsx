@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useContext, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Login from './pages/loginPage/Login';
 import Register from './pages/registerPage/Register';
 import Dashboard from './pages/dashboardPage/Dashboard';
@@ -9,6 +9,15 @@ import { AuthContext } from './contexts/AuthContext';
 
 export default function App() {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // If not logged in, go to login
+    if (!user) {
+      navigate('/welcome');
+    }
+    // The navigate function is stable and doesn't need to be a dependency.
+  }, [user]);
 
   return (
     <Routes>
