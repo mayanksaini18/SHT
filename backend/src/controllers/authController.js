@@ -2,8 +2,6 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { createAccessToken, createRefreshToken } = require('../utils/tokens');
 
-const isProd = process.env.NODE_ENV === 'production';
-
 exports.register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
@@ -23,12 +21,12 @@ exports.register = async (req, res, next) => {
     // Creates cookie named jid
    // httpOnly = cannot be accessed by JavaScript
   // sameSite: 'lax' = safe from CSRF
-    res.cookie('jid', refreshToken, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+   res.cookie('jid', refreshToken, {
+  httpOnly: true,
+  secure: isProd, 
+  sameSite: isProd ? 'none' : 'lax',
+  maxAge: 7 * 24 * 60 * 60 * 1000
+});
 
     res.json({ accessToken, user: { id: user._id, email: user.email, name: user.name } });
   } catch (err) { next(err); }
@@ -48,13 +46,8 @@ exports.login = async (req, res, next) => {
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.cookie('jid', refreshToken, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-
+    res.cookie('jid', refreshToken, { httpOnly: true, sameSite: 'lax' });
+    
     res.json({ accessToken, user: { id: user._id, email: user.email, name: user.name, xp: user.xp, level: user.level } });
   } catch (err) { next(err); }
 };
@@ -82,3 +75,4 @@ exports.getMe = async (req, res) => {
     level: req.user.level,
   });
 };
+

@@ -26,7 +26,9 @@ api.interceptors.response.use(response => response, async (error) => {
       originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
       return api(originalRequest);
     } catch (e) {
-      // If refresh fails, just reject the promise. The AuthContext will handle cleanup.
+      // redirect to login
+      localStorage.removeItem('accessToken');
+      window.location.href = '/login';
       return Promise.reject(e);
     }
   }
