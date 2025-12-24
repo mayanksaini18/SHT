@@ -17,9 +17,9 @@ app.use(cookieParser());
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
 
-//heath cheaker 
-app.get("/",(req,res)=>{
-    res.json({msg : "server is running"})
+// Health check endpoint
+app.get("/", (req, res) => {
+    res.status(200).json({ status: "ok", message: "Server is healthy and running." });
 })
 
 app.use('/api/auth', authRoutes);

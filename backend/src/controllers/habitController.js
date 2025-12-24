@@ -63,4 +63,3 @@ exports.checkIn = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-// other controllers: editHabit, deleteHabit, getAnalytics, leaderboard (omitted for brevity)
