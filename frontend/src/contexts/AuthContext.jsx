@@ -15,8 +15,14 @@ export const AuthProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(true);
 
+  const logout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('user');
+    setUser(null);
+  };
+
   // ============================================
-  // AUTO-LOGIN USING SAVED ACCESS TOKEN
+  // AUTO-LOGIN ON APP LOAD
   // ============================================
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -24,41 +30,30 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
       return;
     }
-
-    // Fetch user if token exists
-    const fetchUser = async () => {
+    // The API interceptor will handle token refreshing automatically.
+    // We just need to ask for the user profile.
+    const fetchUserOnLoad = async () => {
       try {
         const res = await api.get("/auth/me");
         setUser(res.data);
         localStorage.setItem("user", JSON.stringify(res.data));
       } catch (err) {
-        console.log("Token expired -> trying refresh");
-        try {
-          // Try refresh token (cookie-based)
-          const refreshRes = await api.post("/auth/refresh");
-          localStorage.setItem("accessToken", refreshRes.data.accessToken);
-
-          const profile = await api.get("/auth/me");
-          setUser(profile.data);
-          localStorage.setItem("user", JSON.stringify(profile.data));
-        } catch {
-          // refresh also failed
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("user");
-        }
+        // If this fails, the refresh token is likely invalid. The interceptor failed.
+        console.error("Auto-login failed, session is invalid.");
+        logout();
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUser();
-  }, []);
+    fetchUserOnLoad();
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   // ============================================
   // LOGIN
   // ============================================
   const login = async (email, password) => {
-    console.log("login initited")
+    console.log("login initiated");
     const res = await api.post('/auth/login', { email, password });
     localStorage.setItem('accessToken', res.data.accessToken);
     setUser(res.data.user);
@@ -75,15 +70,6 @@ export const AuthProvider = ({ children }) => {
     setUser(res.data.user);
     localStorage.setItem("user", JSON.stringify(res.data.user));
     return res;
-  };
-
-  // ============================================
-  // LOGOUT
-  // ============================================
-  const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('user');
-    setUser(null);
   };
 
   if (loading) return <div>Loading...</div>;
