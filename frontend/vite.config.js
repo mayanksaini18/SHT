@@ -10,6 +10,9 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 export default defineConfig({
+  server:{
+    
+  },
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -18,3 +21,4 @@ export default defineConfig({
     },
   },
 })
+  
