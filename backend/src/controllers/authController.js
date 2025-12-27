@@ -1,6 +1,9 @@
 const bcrypt = require('bcryptjs');
+ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { createAccessToken, createRefreshToken } = require('../utils/tokens');
+
+const isProd = process.env.NODE_ENV === 'production';
 
 exports.register = async (req, res, next) => {
   try {
@@ -25,10 +28,10 @@ exports.register = async (req, res, next) => {
   httpOnly: true,
   secure: isProd, 
   sameSite: isProd ? 'none' : 'lax',
-  maxAge: 7 * 24 * 60 * 60 * 1000
+  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
 });
 
-    res.json({ accessToken, user: { id: user._id, email: user.email, name: user.name } });
+    res.json({ accessToken, user: { id: user._id, email: user.email, name: user.name, xp: user.xp, level: user.level } });
   } catch (err) { next(err); }
 };
 
@@ -46,7 +49,12 @@ exports.login = async (req, res, next) => {
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.cookie('jid', refreshToken, { httpOnly: true, sameSite: 'lax' });
+    res.cookie('jid', refreshToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
     
     res.json({ accessToken, user: { id: user._id, email: user.email, name: user.name, xp: user.xp, level: user.level } });
   } catch (err) { next(err); }
@@ -57,7 +65,7 @@ exports.refreshToken = async (req, res, next) => {
     const token = req.cookies.jid || req.body.refreshToken;
     if (!token) return res.status(401).json({ message: 'No refresh token' });
 
-    const payload = require('jsonwebtoken').verify(token, process.env.REFRESH_TOKEN_SECRET);
+    const payload = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
     const user = await User.findById(payload.id);
     if (!user || user.refreshToken !== token) return res.status(401).json({ message: 'Invalid refresh token' });
 
@@ -75,4 +83,3 @@ exports.getMe = async (req, res) => {
     level: req.user.level,
   });
 };
-
