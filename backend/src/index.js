@@ -31,7 +31,9 @@ app.get("/", (req, res) => {
     res.status(200).json({ status: "ok", message: "Server is healthy and running." });
 })
 
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRoutes, (req, res)=>{
+  res.json({ msg : "route is working"})
+});
 app.use('/api/habits', habitRoutes);
 
 app.use(errorHandler);
