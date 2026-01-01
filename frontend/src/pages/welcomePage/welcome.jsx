@@ -1,6 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
+import GoogleLogin from "@/components/GoogleLogin";
+
+
 export default function Welcome() {
   const navigate = useNavigate();
 
@@ -61,8 +64,11 @@ export default function Welcome() {
                 <path d="M16.6 13.2c0-2.2 1.8-3.3 1.9-3.4-1-1.5-2.6-1.7-3.2-1.7-1.4-.1-2.7.8-3.4.8-.7 0-1.8-.8-3-.8-1.5 0-3 .9-3.8 2.2-1.6 2.7-.4 6.7 1.1 8.9.7 1.1 1.6 2.4 2.8 2.3 1.1 0 1.5-.7 2.9-.7s1.7.7 2.9.7c1.2 0 2-1.1 2.7-2.2.9-1.3 1.2-2.6 1.2-2.7-.1 0-2.3-.9-2.3-3.6zM14.4 6.3c.6-.8 1-1.9.9-3-.9 0-2 .6-2.6 1.3-.6.7-1 1.8-.9 2.9 1 .1 2-.5 2.6-1.2z" />
               </svg>
               Sign up with Apple
+
+
             </Button>
              {/* Google */}
+
             <Button
               variant="outline"
               className="w-full h-12 border-slate-300 hover:bg-slate-50 flex gap-3"
@@ -85,8 +91,9 @@ export default function Welcome() {
                   d="M24 45.5c5 0 9.19-1.65 12.25-4.49l-7.05-5.46c-1.96 1.32-4.48 2.1-5.2 2.1-6.2 0-11.46-4.68-13.06-10.87l-6.37 6.39C7.26 40.92 14.9 45.5 24 45.5z"
                 />
               </svg>
-              Sign up with Google
+              <GoogleLogin/>
             </Button>
+            
           </div>
 
           {/* Footer */}
