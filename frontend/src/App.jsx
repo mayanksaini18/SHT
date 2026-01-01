@@ -12,7 +12,7 @@ export default function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // If not logged in, go to login
+  
     if (!user) {
       navigate('/welcome');
     }
