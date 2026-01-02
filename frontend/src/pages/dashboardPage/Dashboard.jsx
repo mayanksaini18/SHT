@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Spinner } from "@/components/ui/spinner"
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { Link, useNavigate } from 'react-router-dom';
@@ -227,7 +228,10 @@ export default function Dashboard() {
                     }}
                   />
                 ) : (
-                  <div className="h-full flex items-center justify-center text-slate-400 text-sm">Loading chart...</div>
+                  <div className="h-full flex items-center justify-center text-slate-400 text-sm">
+                    <Spinner/>
+                    Loading chart...
+                    </div>
                 )}
               </div>
 
