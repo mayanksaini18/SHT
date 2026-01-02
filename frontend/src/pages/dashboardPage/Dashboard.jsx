@@ -73,7 +73,7 @@ export default function Dashboard() {
         labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
         datasets: [{
           label: 'Check-ins',
-          data: [1, 2, 3, 2, 4, 1, 0],
+          data: [1, 2, 3, 2, 4, 1, 5],
           fill: true,
           borderColor: 'rgb(99, 102, 241)',
           backgroundColor: 'rgba(99, 102, 241, 0.1)',
@@ -95,6 +95,18 @@ export default function Dashboard() {
     };
   });
 
+  function Greeting() {
+    const hour = new Date().getHours();
+    //gives 0 - 23 
+    const greeting = hour < 12
+      ? "Good Morning"
+      : hour < 18
+        ? "Good Afternoon"
+        : "Good Evening";
+  return (
+    <p className="text-sm font-medium text-slate-500">{greeting}</p>
+  )
+  }
   const firstLetter = (user?.name || 'U').charAt(0).toUpperCase();
 
   return (
@@ -105,7 +117,7 @@ export default function Dashboard() {
 
         <header className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-slate-500">Good morning,</p>
+           <Greeting/>
             <h1 className="text-2xl font-bold text-slate-900">{user?.name}</h1>
             <div className="flex items-center gap-2 mt-2">
               <Badge variant="secondary" className="px-2 py-0.5 bg-indigo-100 text-indigo-700 hover:bg-indigo-100">
