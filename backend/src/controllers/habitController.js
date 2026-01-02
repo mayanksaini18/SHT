@@ -8,6 +8,14 @@ function isSameDay(d1, d2) {
          d1.getMonth() === d2.getMonth() &&
          d1.getDate() === d2.getDate();
 }
+//helper function to get LOCAL date key
+function getLocalDateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`; // YYYY-MM-DD (LOCAL)
+}
+
 
 exports.createHabit = async (req, res, next) => {
   try {
@@ -23,6 +31,57 @@ exports.getHabits = async (req, res, next) => {
     res.json(habits);
   } catch (err) { next(err); }
 };
+
+exports.weeklyAnalytics = async (req, res , next)=>{
+  
+  try {
+    const userId = req.user._id;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - 6);
+
+    const habits = await Habit.find({ user: userId, isActive: true });
+
+    const dayMap = {};
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(startDate);
+      d.setDate(startDate.getDate() + i);
+      dayMap[getLocalDateKey(d)] = 0;
+    }
+
+    habits.forEach(habit => {
+      habit.checkins.forEach(checkin => {
+        const d = new Date(checkin.date);
+        d.setHours(0, 0, 0, 0);
+
+        const key = getLocalDateKey(d);
+        if (dayMap[key] !== undefined) {
+          dayMap[key]++;
+        }
+      });
+    });
+
+    const result = Object.keys(dayMap).map(dateStr => {
+      const d = new Date(dateStr);
+      return {
+        day: d.toLocaleDateString('en-US', { weekday: 'short' }),
+        count: dayMap[dateStr]
+      };
+    });
+
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Analytics failed' });
+  }
+
+
+}
+
 
 exports.checkIn = async (req, res, next) => {
   try {
