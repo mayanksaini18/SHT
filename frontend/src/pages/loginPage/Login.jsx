@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState,  } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "@/contexts/AuthContext"; // keep your context path
 // shadcn components (CLI generated)
@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox"; // optional
 import { AlertTriangle } from "lucide-react";
+import { auth } from "@/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login() {
-  const { login } = useContext(AuthContext);
+  // If you move logic to context, you can use this: const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
@@ -22,10 +24,22 @@ export default function Login() {
     setErr("");
     setLoading(true);
     try {
-      await login(email, password); // your auth function
+      await signInWithEmailAndPassword(auth,email, password); // your auth function
+      // onAuthStateChanged listener in App.jsx will handle the user state.
+      // We can navigate to the main part of the app.
       navigate("/");
     } catch (error) {
-      setErr(error.response?.data?.message || "Login failed");
+      console.error("Login error:", error.code, error.message);
+      // Provide more specific error messages from Firebase
+      if (
+        error.code === "auth/user-not-found" ||
+        error.code === "auth/wrong-password" ||
+        error.code === "auth/invalid-credential"
+      ) {
+        setErr("Invalid email or password. Please try again.");
+      } else {
+        setErr(error.message || "Login failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

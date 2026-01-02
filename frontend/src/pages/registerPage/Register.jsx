@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle } from "lucide-react";
+import { auth } from "@/firebase";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 export default function Register() {
-  const { register } = useContext(AuthContext);
+  // If you move logic to context, you can use this: const { register } = useContext(AuthContext);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,10 +25,29 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await register(form); // your custom register logic
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        form.email,
+        form.password
+      );
+      // After creating the user, update their profile with the name from the form.
+      await updateProfile(userCredential.user, {
+        displayName: form.name,
+      });
+
+      // Firebase's onAuthStateChanged listener in App.jsx will now pick up the new user.
+      // We can navigate to the main part of the app.
       navigate("/");
     } catch (error) {
-      setErr(error.response?.data?.message || "Registration failed");
+      console.error("Registration error:", error.code, error.message);
+      // Provide more specific error messages from Firebase for better UX.
+      if (error.code === "auth/email-already-in-use") {
+        setErr("This email address is already registered.");
+      } else if (error.code === "auth/weak-password") {
+        setErr("Password should be at least 6 characters long.");
+      } else {
+        setErr(error.message || "Registration failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
