@@ -16,7 +16,7 @@ export default function App() {
     if (!user) {
       navigate('/welcome');
     }
-    // The navigate function is stable and doesn't need to be a dependency.
+    
   }, [user]);
 
   return (
