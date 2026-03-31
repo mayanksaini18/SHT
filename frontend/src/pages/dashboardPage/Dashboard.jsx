@@ -33,9 +33,9 @@ export default function Dashboard() {
   async function fetchHabits() {
     try {
       const res = await api.get('/habits');
-      setHabits(res.data);
+      setHabits(res.data.habits ?? res.data);
     } catch (err) {
-      console.error(err);
+      toast.error('Failed to load habits');
     }
   }
 
@@ -70,17 +70,8 @@ export default function Dashboard() {
         }]
       });
     } catch (err) {
-      setChartData({
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [{
-          label: 'Check-ins',
-          data: [1, 2, 3, 2, 4, 1, 5],
-          fill: true,
-          borderColor: 'rgb(99, 102, 241)',
-          backgroundColor: 'rgba(99, 102, 241, 0.1)',
-          tension: 0.4
-        }]
-      });
+      toast.error('Failed to load analytics');
+      setChartData(null);
     }
   }
 
