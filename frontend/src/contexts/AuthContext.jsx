@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
         setUser(res.data);
         localStorage.setItem("user", JSON.stringify(res.data));
       } catch (err) {
-        console.log("Token expired -> trying refresh");
+        // Token expired — try refresh
         try {
           // Try refresh token (cookie-based)
           const refreshRes = await api.post("/auth/refresh");
@@ -58,7 +58,6 @@ export const AuthProvider = ({ children }) => {
   // LOGIN
   // ============================================
   const login = async (email, password) => {
-    console.log("login initited")
     const res = await api.post('/auth/login', { email, password });
     localStorage.setItem('accessToken', res.data.accessToken);
     setUser(res.data.user);
