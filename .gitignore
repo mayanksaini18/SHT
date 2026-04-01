@@ -8,3 +8,5 @@ node_modules/
 
 # OS files
 .DS_Store
+.vercel
+.env*.local
