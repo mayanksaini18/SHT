@@ -30,6 +30,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   'https://www.smarthabittracker.online',
+  'https://lifeos-eight-xi.vercel.app',
 ];
 
 app.use(cors({
