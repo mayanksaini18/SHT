@@ -13,6 +13,14 @@ function setCookieAndRespond(res, user, accessToken, refreshToken) {
     sameSite: isProd ? 'none' : 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000
   });
+
+  res.cookie('access_token', accessToken, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
+    maxAge: 15 * 60 * 1000
+  });
+
   res.json({
     accessToken,
     user: { id: user._id, email: user.email, name: user.name, xp: user.xp, level: user.level }
@@ -99,6 +107,14 @@ exports.refreshToken = async (req, res, next) => {
     }
 
     const accessToken = createAccessToken({ id: user._id });
+
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      maxAge: 15 * 60 * 1000
+    });
+
     res.json({ accessToken });
   } catch (err) {
     if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
@@ -106,6 +122,12 @@ exports.refreshToken = async (req, res, next) => {
     }
     next(err);
   }
+};
+
+exports.logout = async (req, res) => {
+  res.clearCookie('jid', { httpOnly: true, secure: isProd, sameSite: isProd ? 'none' : 'lax' });
+  res.clearCookie('access_token', { httpOnly: true, secure: isProd, sameSite: isProd ? 'none' : 'lax' });
+  res.json({ message: 'Logged out' });
 };
 
 exports.getMe = async (req, res) => {
