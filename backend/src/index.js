@@ -6,6 +6,11 @@ const admin = require('firebase-admin');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const habitRoutes = require('./routes/habits');
+const moodRoutes = require('./routes/mood');
+const sleepRoutes = require('./routes/sleep');
+const waterRoutes = require('./routes/water');
+const fitnessRoutes = require('./routes/fitness');
+const insightRoutes = require('./routes/insights');
 const errorHandler = require('./middlewares/errorHandler');
 
 // Initialize Firebase Admin (uses default credentials or service account)
@@ -23,6 +28,7 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://localhost:3000',
   'https://www.smarthabittracker.online',
 ];
 
@@ -38,6 +44,11 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/habits', habitRoutes);
+app.use('/api/mood', moodRoutes);
+app.use('/api/sleep', sleepRoutes);
+app.use('/api/water', waterRoutes);
+app.use('/api/fitness', fitnessRoutes);
+app.use('/api/insights', insightRoutes);
 
 app.use(errorHandler);
 

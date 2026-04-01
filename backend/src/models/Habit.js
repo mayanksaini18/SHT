@@ -10,6 +10,7 @@ const habitSchema = new mongoose.Schema({
   title: { type: String, required: true, maxlength: 100 },
   description: { type: String, maxlength: 500 },
   frequency: { type: String, enum: ['daily', 'weekly', 'monthly'], default: 'daily' },
+  category: { type: String, enum: ['fitness', 'health', 'learning', 'mindfulness', 'productivity', 'other'], default: 'other' },
   createdAt: { type: Date, default: Date.now },
   checkins: [checkinSchema],
   streak: { type: Number, default: 0 },
