@@ -128,3 +128,25 @@
     @apply font-sans;
   }
 }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
+}
+@keyframes float-sm {
+  0%, 100% { transform: translateY(0px) rotate(var(--tw-rotate, 0deg)); }
+  50%       { transform: translateY(-8px) rotate(var(--tw-rotate, 0deg)); }
+}
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-float       { animation: float     5s ease-in-out infinite; }
+.animate-float-sm    { animation: float-sm  4s ease-in-out infinite; }
+.animate-fade-in-up  { animation: fade-in-up  0.6s ease-out both; }
+.animate-fade-in     { animation: fade-in     0.5s ease-out both; }
