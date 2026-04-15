@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { fetchApi } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 import type { UserGoals, ReminderTimes } from "@/types/user";
@@ -26,6 +26,22 @@ export function useUpdateReminders() {
         body: JSON.stringify(times),
       }),
     onSuccess: (data) => updateReminderTimes(data.reminderTimes),
+  });
+}
+
+export interface ReminderSuggestion {
+  time: string;
+  reason: string;
+}
+export type ReminderSuggestions = Record<"mood" | "sleep" | "water" | "exercise", ReminderSuggestion>;
+
+export function useReminderSuggestions() {
+  return useQuery({
+    queryKey: ["reminder-suggestions"],
+    queryFn: () =>
+      fetchApi<{ suggestions: ReminderSuggestions; samples: Record<string, number> }>(
+        "/settings/reminder-suggestions",
+      ),
   });
 }
 

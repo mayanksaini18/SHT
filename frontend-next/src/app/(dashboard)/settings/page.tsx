@@ -6,9 +6,9 @@ import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useUpdateGoals, useUpdateReminders, useUpdateEmailReminders, subscribeToPush, unsubscribeFromPush, getPushSubscription } from "@/hooks/use-settings";
+import { useUpdateGoals, useUpdateReminders, useUpdateEmailReminders, useReminderSuggestions, subscribeToPush, unsubscribeFromPush, getPushSubscription } from "@/hooks/use-settings";
 import { toast } from "sonner";
-import { Notification01Icon, NotificationOff01Icon, Mail01Icon, Download01Icon } from "hugeicons-react";
+import { Notification01Icon, NotificationOff01Icon, Mail01Icon, Download01Icon, SparklesIcon } from "hugeicons-react";
 import { API_URL } from "@/lib/constants";
 
 export default function SettingsPage() {
@@ -16,6 +16,7 @@ export default function SettingsPage() {
   const updateGoalsMutation = useUpdateGoals();
   const updateRemindersMutation = useUpdateReminders();
   const updateEmailRemindersMutation = useUpdateEmailReminders();
+  const suggestionsQuery = useReminderSuggestions();
 
   const goals = user?.goals ?? { sleep: 7, exercise: 4, mood: 3, water: 8 };
   const reminders = user?.reminderTimes ?? { mood: "", sleep: "", water: "", exercise: "" };
@@ -206,6 +207,34 @@ export default function SettingsPage() {
           </p>
         </div>
         <div className="border rounded-xl p-5 space-y-4">
+          {suggestionsQuery.data && (
+            <div className="rounded-lg bg-muted/40 border p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <SparklesIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs font-medium">Smart suggestions</span>
+                <span className="text-[11px] text-muted-foreground ml-auto">
+                  Based on when you log (UTC)
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {(["mood", "sleep", "water", "exercise"] as const).map((m) => {
+                  const s = suggestionsQuery.data!.suggestions[m];
+                  const setters = { mood: setMoodTime, sleep: setSleepTime, water: setWaterTime, exercise: setExerciseTime };
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setters[m](s.time)}
+                      className="text-left px-2.5 py-1.5 rounded-md hover:bg-accent transition-colors border border-transparent hover:border-border"
+                    >
+                      <p className="text-xs font-medium capitalize">{m} · {s.time}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">{s.reason}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label className="text-xs">Mood reminder</Label>
