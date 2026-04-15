@@ -112,8 +112,7 @@ export default function WelcomePage() {
               <img
                 src="/illustration.svg"
                 alt="Wellness illustration"
-                className="w-full h-full object-contain select-none animate-float"
-                style={{ animationDelay: "0s" }}
+                className="w-full h-full object-contain select-none"
                 draggable={false}
               />
 
