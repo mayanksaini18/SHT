@@ -12,9 +12,11 @@ import {
 import { Line } from "react-chartjs-2";
 import { useWeeklyAnalytics } from "@/hooks/use-habits";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useChartColors } from "@/lib/chart-theme";
+import { useChartScaleColors, CHART_COLORS } from "@/lib/chart-theme";
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
+
+const C = CHART_COLORS.weekly;
 
 interface StatsProps {
   xp: number;
@@ -23,23 +25,24 @@ interface StatsProps {
 
 export function WeeklyChart({ xp, level }: StatsProps) {
   const { data, isLoading, isError } = useWeeklyAnalytics();
-  const c = useChartColors();
+  const scale = useChartScaleColors();
 
   const chartData = data
     ? {
         labels: data.map((d) => d.day),
-        datasets: [
-          {
-            label: "Check-ins",
-            data: data.map((d) => d.count),
-            fill: true,
-            borderColor: c.line,
-            backgroundColor: c.fill,
-            pointBackgroundColor: c.line,
-            tension: 0.4,
-            borderWidth: 1.5,
-          },
-        ],
+        datasets: [{
+          label: "Check-ins",
+          data: data.map((d) => d.count),
+          fill: true,
+          borderColor: C.line,
+          backgroundColor: C.fill,
+          pointBackgroundColor: C.point,
+          pointBorderColor: "transparent",
+          tension: 0.4,
+          borderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        }],
       }
     : null;
 
@@ -70,16 +73,16 @@ export function WeeklyChart({ xp, level }: StatsProps) {
               scales: {
                 x: {
                   grid: { display: false },
-                  ticks: { font: { size: 11 }, color: c.tickColor },
+                  ticks: { font: { size: 11 }, color: scale.tickColor },
                   border: { display: false },
                 },
                 y: {
-                  grid: { color: c.grid },
-                  ticks: { stepSize: 1, font: { size: 11 }, color: c.tickColor },
+                  grid: { color: scale.grid },
+                  ticks: { stepSize: 1, font: { size: 11 }, color: scale.tickColor },
                   border: { display: false },
                 },
               },
-              elements: { point: { radius: 3, hoverRadius: 5 } },
+              elements: { point: { radius: 4, hoverRadius: 6 } },
             }}
           />
         ) : null}

@@ -12,13 +12,15 @@ import {
   Filler,
 } from "chart.js";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useChartColors } from "@/lib/chart-theme";
+import { useChartScaleColors, CHART_COLORS } from "@/lib/chart-theme";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
 
+const C = CHART_COLORS.mood;
+
 export function MoodChart() {
   const { data: moods, isLoading } = useMoods();
-  const c = useChartColors();
+  const scale = useChartScaleColors();
 
   if (isLoading) return <Skeleton className="h-52 w-full rounded-xl" />;
 
@@ -28,9 +30,7 @@ export function MoodChart() {
     return (
       <div className="border border-dashed rounded-xl py-12 text-center">
         <img src="/mood.svg" alt="" className="h-24 mx-auto mb-4 select-none opacity-60" draggable={false} />
-        <p className="text-sm text-muted-foreground">
-          Log your first mood to see trends here.
-        </p>
+        <p className="text-sm text-muted-foreground">Log your first mood to see trends here.</p>
       </div>
     );
   }
@@ -48,13 +48,15 @@ export function MoodChart() {
           datasets: [{
             label: "Mood",
             data: sorted.map((m) => m.score),
-            borderColor: c.line,
-            backgroundColor: c.fill,
+            borderColor: C.line,
+            backgroundColor: C.fill,
+            pointBackgroundColor: C.point,
+            pointBorderColor: "transparent",
             fill: true,
             tension: 0.4,
-            borderWidth: 1.5,
-            pointRadius: 3,
-            pointBackgroundColor: c.line,
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
           }],
         }}
         options={{
@@ -62,14 +64,14 @@ export function MoodChart() {
           scales: {
             y: {
               min: 1, max: 5,
-              ticks: { stepSize: 1, color: c.tickColor },
+              ticks: { stepSize: 1, color: scale.tickColor },
               border: { display: false },
-              grid: { color: c.grid },
+              grid: { color: scale.grid },
             },
             x: {
               border: { display: false },
               grid: { display: false },
-              ticks: { color: c.tickColor },
+              ticks: { color: scale.tickColor },
             },
           },
           plugins: { legend: { display: false } },

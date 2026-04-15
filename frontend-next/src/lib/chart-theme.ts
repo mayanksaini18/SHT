@@ -3,36 +3,24 @@
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
-export interface ChartColors {
-  bar: string;
-  barHover: string;
-  line: string;
-  fill: string;
+export interface ChartScaleColors {
   grid: string;
   tickColor: string;
 }
 
-const DARK: ChartColors = {
-  bar:      "rgba(255, 255, 255, 0.15)",
-  barHover: "rgba(255, 255, 255, 0.35)",
-  line:     "rgba(255, 255, 255, 0.9)",
-  fill:     "rgba(255, 255, 255, 0.05)",
-  grid:     "rgba(255, 255, 255, 0.07)",
-  tickColor: "rgba(255, 255, 255, 0.45)",
+const DARK: ChartScaleColors = {
+  grid:      "rgba(255, 255, 255, 0.07)",
+  tickColor: "rgba(255, 255, 255, 0.4)",
 };
 
-const LIGHT: ChartColors = {
-  bar:      "rgba(0, 0, 0, 0.12)",
-  barHover: "rgba(0, 0, 0, 0.25)",
-  line:     "rgba(0, 0, 0, 0.85)",
-  fill:     "rgba(0, 0, 0, 0.05)",
-  grid:     "rgba(0, 0, 0, 0.06)",
-  tickColor: "rgba(0, 0, 0, 0.45)",
+const LIGHT: ChartScaleColors = {
+  grid:      "rgba(0, 0, 0, 0.06)",
+  tickColor: "rgba(0, 0, 0, 0.4)",
 };
 
-export function useChartColors(): ChartColors {
+export function useChartScaleColors(): ChartScaleColors {
   const { resolvedTheme } = useTheme();
-  const [colors, setColors] = useState<ChartColors>(LIGHT);
+  const [colors, setColors] = useState<ChartScaleColors>(LIGHT);
 
   useEffect(() => {
     setColors(resolvedTheme === "dark" ? DARK : LIGHT);
@@ -40,3 +28,21 @@ export function useChartColors(): ChartColors {
 
   return colors;
 }
+
+// Per-chart accent palettes — vibrant, readable on both light & dark
+export const CHART_COLORS = {
+  mood: {
+    line:   "#a78bfa",                      // violet-400
+    fill:   "rgba(167, 139, 250, 0.12)",
+    point:  "#a78bfa",
+  },
+  sleep: {
+    bar:      "rgba(56, 189, 248, 0.55)",   // sky-400
+    barHover: "rgba(56, 189, 248, 0.85)",
+  },
+  weekly: {
+    line:  "#34d399",                       // emerald-400
+    fill:  "rgba(52, 211, 153, 0.1)",
+    point: "#34d399",
+  },
+} as const;

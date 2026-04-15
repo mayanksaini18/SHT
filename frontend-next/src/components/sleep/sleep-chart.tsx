@@ -4,13 +4,15 @@ import { useSleepStats } from "@/hooks/use-sleep";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip } from "chart.js";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useChartColors } from "@/lib/chart-theme";
+import { useChartScaleColors, CHART_COLORS } from "@/lib/chart-theme";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
+const C = CHART_COLORS.sleep;
+
 export function SleepChart() {
   const { data: stats, isLoading } = useSleepStats();
-  const c = useChartColors();
+  const scale = useChartScaleColors();
 
   if (isLoading) return <Skeleton className="h-64 w-full rounded-xl" />;
 
@@ -52,9 +54,10 @@ export function SleepChart() {
             datasets: [{
               label: "Hours",
               data: stats.entries.map((e) => e.duration),
-              backgroundColor: c.bar,
-              borderRadius: 4,
-              hoverBackgroundColor: c.barHover,
+              backgroundColor: C.bar,
+              hoverBackgroundColor: C.barHover,
+              borderRadius: 6,
+              borderSkipped: false,
             }],
           }}
           options={{
@@ -64,13 +67,13 @@ export function SleepChart() {
               y: {
                 beginAtZero: true, max: 12,
                 border: { display: false },
-                grid: { color: c.grid },
-                ticks: { color: c.tickColor },
+                grid: { color: scale.grid },
+                ticks: { color: scale.tickColor },
               },
               x: {
                 border: { display: false },
                 grid: { display: false },
-                ticks: { color: c.tickColor },
+                ticks: { color: scale.tickColor },
               },
             },
           }}
