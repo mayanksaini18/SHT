@@ -20,6 +20,7 @@ export interface User {
   level: number;
   goals: UserGoals;
   reminderTimes: ReminderTimes;
+  emailReminders: boolean;
 }
 
 export interface AuthResponse {

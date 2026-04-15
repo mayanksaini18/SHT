@@ -5,7 +5,8 @@ const auth = require('../middlewares/auth');
 const validate = require('../middlewares/validate');
 const {
   updateGoals, updateReminders,
-  subscribePush, unsubscribePush, getVapidPublicKey
+  subscribePush, unsubscribePush, getVapidPublicKey,
+  updateEmailReminders,
 } = require('../controllers/settingsController');
 
 router.get('/vapid-public-key', getVapidPublicKey);
@@ -28,5 +29,9 @@ router.put('/reminders', [
 
 router.post('/push-subscribe', subscribePush);
 router.delete('/push-unsubscribe', unsubscribePush);
+
+router.put('/email-reminders', [
+  body('enabled').isBoolean(),
+], validate, updateEmailReminders);
 
 module.exports = router;

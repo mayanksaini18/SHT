@@ -5,6 +5,7 @@ const Mood = require('./models/Mood');
 const Sleep = require('./models/Sleep');
 const Water = require('./models/Water');
 const Fitness = require('./models/Fitness');
+const { sendReminder: sendEmailReminder, isEnabled: isEmailEnabled } = require('./services/email');
 
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
@@ -28,14 +29,17 @@ async function sendPush(subscription, payload) {
 }
 
 async function processReminders() {
-  if (!process.env.VAPID_PUBLIC_KEY) return;
-
   const now = new Date();
   const currentHHMM = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
   const todayStart = getUTCStartOfDay(now);
 
-  // Find users who have push subscriptions and at least one reminder matching this minute
-  const users = await User.find({ 'pushSubscriptions.0': { $exists: true } });
+  // Include any user who could receive a reminder — push subscribers or email opt-ins
+  const users = await User.find({
+    $or: [
+      { 'pushSubscriptions.0': { $exists: true } },
+      { emailReminders: true },
+    ],
+  });
 
   for (const user of users) {
     const rt = user.reminderTimes || {};
@@ -54,16 +58,23 @@ async function processReminders() {
 
       if (alreadyLogged) continue;
 
-      const messages = {
-        mood:     { title: 'How are you feeling?',        body: "Log today's mood — it only takes a second.",  url: '/mood' },
-        sleep:    { title: 'How did you sleep?',           body: 'Track last night\'s rest.',                   url: '/sleep' },
-        water:    { title: 'Stay hydrated!',               body: "Don't forget to log your water intake.",      url: '/water' },
-        exercise: { title: 'Time to move!',                body: 'Log your workout for today.',                  url: '/fitness' },
-      };
+      // Push
+      if (process.env.VAPID_PUBLIC_KEY && user.pushSubscriptions?.length) {
+        const pushPayloads = {
+          mood:     { title: 'How are you feeling?',  body: "Log today's mood — it only takes a second.", url: '/mood' },
+          sleep:    { title: 'How did you sleep?',    body: "Track last night's rest.",                   url: '/sleep' },
+          water:    { title: 'Stay hydrated!',        body: "Don't forget to log your water intake.",     url: '/water' },
+          exercise: { title: 'Time to move!',         body: 'Log your workout for today.',                url: '/fitness' },
+        };
+        for (const sub of user.pushSubscriptions) {
+          const result = await sendPush(sub, pushPayloads[mod]);
+          if (result === 'expired') expiredEndpoints.push(sub.endpoint);
+        }
+      }
 
-      for (const sub of user.pushSubscriptions) {
-        const result = await sendPush(sub, messages[mod]);
-        if (result === 'expired') expiredEndpoints.push(sub.endpoint);
+      // Email
+      if (isEmailEnabled() && user.emailReminders && user.email) {
+        await sendEmailReminder({ to: user.email, module: mod });
       }
     }
 

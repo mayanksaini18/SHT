@@ -6,14 +6,15 @@ import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useUpdateGoals, useUpdateReminders, subscribeToPush, unsubscribeFromPush, getPushSubscription } from "@/hooks/use-settings";
+import { useUpdateGoals, useUpdateReminders, useUpdateEmailReminders, subscribeToPush, unsubscribeFromPush, getPushSubscription } from "@/hooks/use-settings";
 import { toast } from "sonner";
-import { Notification01Icon, NotificationOff01Icon } from "hugeicons-react";
+import { Notification01Icon, NotificationOff01Icon, Mail01Icon } from "hugeicons-react";
 
 export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
   const updateGoalsMutation = useUpdateGoals();
   const updateRemindersMutation = useUpdateReminders();
+  const updateEmailRemindersMutation = useUpdateEmailReminders();
 
   const goals = user?.goals ?? { sleep: 7, exercise: 4, mood: 3, water: 8 };
   const reminders = user?.reminderTimes ?? { mood: "", sleep: "", water: "", exercise: "" };
@@ -71,6 +72,16 @@ export default function SettingsPage() {
       toast.success("Reminders saved");
     } catch {
       toast.error("Failed to save reminders");
+    }
+  }
+
+  async function toggleEmailReminders() {
+    const next = !(user?.emailReminders ?? false);
+    try {
+      await updateEmailRemindersMutation.mutateAsync(next);
+      toast.success(next ? "Email reminders enabled" : "Email reminders disabled");
+    } catch {
+      toast.error("Failed to update email reminders");
     }
   }
 
@@ -222,6 +233,30 @@ export default function SettingsPage() {
             {isPushEnabled
               ? <><NotificationOff01Icon className="h-3.5 w-3.5" /> Disable</>
               : <><Notification01Icon className="h-3.5 w-3.5" /> Enable</>}
+          </Button>
+        </div>
+      </section>
+
+      {/* Email Reminders */}
+      <section className="space-y-4">
+        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Email Reminders</h2>
+        <div className="border rounded-xl px-5 py-4 flex items-center justify-between">
+          <div className="min-w-0 pr-4">
+            <p className="text-sm font-medium">Send reminders to email</p>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">
+              {user?.emailReminders
+                ? `Sending to ${user?.email || "your inbox"} at reminder times`
+                : "Get reminders even when the browser is closed"}
+            </p>
+          </div>
+          <Button
+            variant="outline" size="sm"
+            onClick={toggleEmailReminders}
+            disabled={updateEmailRemindersMutation.isPending}
+            className="gap-1.5 shrink-0"
+          >
+            <Mail01Icon className="h-3.5 w-3.5" />
+            {user?.emailReminders ? "Disable" : "Enable"}
           </Button>
         </div>
       </section>

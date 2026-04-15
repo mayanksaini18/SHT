@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema({
     exercise: { type: String, default: '' },
   },
   pushSubscriptions: { type: [Object], default: [] },
+  emailReminders: { type: Boolean, default: false },
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

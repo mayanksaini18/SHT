@@ -75,3 +75,16 @@ exports.unsubscribePush = async (req, res, next) => {
 exports.getVapidPublicKey = (req, res) => {
   res.json({ publicKey: process.env.VAPID_PUBLIC_KEY || '' });
 };
+
+exports.updateEmailReminders = async (req, res, next) => {
+  try {
+    const { enabled } = req.body;
+    if (typeof enabled !== 'boolean') {
+      return res.status(400).json({ message: 'enabled must be a boolean' });
+    }
+    const user = await User.findByIdAndUpdate(
+      req.user._id, { $set: { emailReminders: enabled } }, { new: true }
+    );
+    res.json({ emailReminders: user.emailReminders });
+  } catch (err) { next(err); }
+};
