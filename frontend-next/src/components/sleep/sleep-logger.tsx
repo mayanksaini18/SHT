@@ -18,15 +18,34 @@ export function SleepLogger() {
   const [notes, setNotes] = useState("");
   const logSleep = useLogSleep();
 
+  function timeToISO(timeStr: string, baseDate: Date): string {
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    const d = new Date(baseDate);
+    d.setHours(hours, minutes, 0, 0);
+    return d.toISOString();
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!duration || !quality) { toast.error("Duration and quality are required"); return; }
+
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    // bedtime before noon assumed to be same day, afternoon/evening assumed previous day
+    let bedtimeISO: string | undefined;
+    if (bedtime) {
+      const [h] = bedtime.split(":").map(Number);
+      bedtimeISO = timeToISO(bedtime, h < 12 ? today : yesterday);
+    }
+
     try {
       await logSleep.mutateAsync({
         duration: parseFloat(duration),
         quality,
-        bedtime: bedtime || undefined,
-        wakeTime: wakeTime || undefined,
+        bedtime: bedtimeISO,
+        wakeTime: wakeTime ? timeToISO(wakeTime, today) : undefined,
         notes: notes || undefined,
       });
       toast.success("Sleep logged!");
