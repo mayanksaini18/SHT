@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { useJournalEntries, useJournalByDate, useSaveJournal, useDeleteJournal } from "@/hooks/use-journal";
+import { useJournalEntries, useJournalByDate, useSaveJournal, useDeleteJournal, useAnalyzeJournal } from "@/hooks/use-journal";
 import { toast } from "sonner";
-import { Delete02Icon, PencilEdit01Icon } from "hugeicons-react";
+import { Delete02Icon, PencilEdit01Icon, SparklesIcon } from "hugeicons-react";
+import { cn } from "@/lib/utils";
 
 const TODAY = new Date().toISOString().slice(0, 10);
 
@@ -30,6 +31,7 @@ export default function JournalPage() {
   const { data: existing } = useJournalByDate(selectedDate);
   const saveJournal = useSaveJournal();
   const deleteJournal = useDeleteJournal();
+  const analyzeJournal = useAnalyzeJournal();
 
   // Load existing entry when date changes
   useEffect(() => {
@@ -52,6 +54,14 @@ export default function JournalPage() {
       setIsDirty(false);
       toast.success("Saved");
     } catch { toast.error("Failed to save"); }
+  }
+
+  async function handleAnalyze() {
+    if (!existing) { toast.error("Save the entry first"); return; }
+    if (isDirty) { toast.error("Save your changes first"); return; }
+    try {
+      await analyzeJournal.mutateAsync(existing._id);
+    } catch { toast.error("Analysis failed"); }
   }
 
   async function handleDelete(id: string) {
@@ -124,6 +134,17 @@ export default function JournalPage() {
               </div>
             </div>
           </div>
+
+          {existing && (
+            <JournalInsights
+              summary={existing.aiSummary}
+              sentiment={existing.aiSentiment}
+              themes={existing.aiThemes}
+              isAnalyzing={analyzeJournal.isPending}
+              isDirty={isDirty}
+              onAnalyze={handleAnalyze}
+            />
+          )}
         </div>
 
         {/* History sidebar */}
@@ -180,6 +201,75 @@ export default function JournalPage() {
         </div>
 
       </div>
+    </div>
+  );
+}
+
+const SENTIMENT_STYLE: Record<string, string> = {
+  positive: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+  neutral:  "bg-muted text-muted-foreground border-border",
+  negative: "bg-red-500/10 text-red-500 border-red-500/20",
+  mixed:    "bg-amber-500/10 text-amber-500 border-amber-500/20",
+};
+
+function JournalInsights({
+  summary, sentiment, themes, isAnalyzing, isDirty, onAnalyze,
+}: {
+  summary?: string;
+  sentiment?: "positive" | "neutral" | "negative" | "mixed";
+  themes?: string[];
+  isAnalyzing: boolean;
+  isDirty: boolean;
+  onAnalyze: () => void;
+}) {
+  const hasAnalysis = !!summary;
+
+  return (
+    <div className="border rounded-xl p-5 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <SparklesIcon className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">AI reflection</span>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 text-xs"
+          onClick={onAnalyze}
+          disabled={isAnalyzing || isDirty}
+        >
+          {isAnalyzing ? "Analyzing…" : hasAnalysis ? "Re-analyze" : "Analyze"}
+        </Button>
+      </div>
+
+      {isDirty && !isAnalyzing && (
+        <p className="text-xs text-muted-foreground">Save your changes first to analyze.</p>
+      )}
+
+      {hasAnalysis ? (
+        <>
+          <p className="text-sm leading-relaxed">{summary}</p>
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            {sentiment && (
+              <span className={cn(
+                "text-[10px] uppercase tracking-wider font-medium px-2 py-0.5 rounded-full border",
+                SENTIMENT_STYLE[sentiment],
+              )}>
+                {sentiment}
+              </span>
+            )}
+            {themes?.map((t) => (
+              <span key={t} className="text-[11px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                {t}
+              </span>
+            ))}
+          </div>
+        </>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Get a one-line reflection, sentiment, and themes from today&apos;s entry.
+        </p>
+      )}
     </div>
   );
 }

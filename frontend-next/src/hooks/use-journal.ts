@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchApi } from "@/lib/api";
-import type { JournalEntry } from "@/types/journal";
+import type { JournalEntry, JournalAnalysis } from "@/types/journal";
 
 export function useJournalEntries(limit = 30) {
   return useQuery<JournalEntry[]>({
@@ -27,6 +27,17 @@ export function useSaveJournal() {
         method: "POST",
         body: JSON.stringify(data),
       }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["journal"] });
+    },
+  });
+}
+
+export function useAnalyzeJournal() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      fetchApi<JournalAnalysis>(`/journal/${id}/analyze`, { method: "POST" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["journal"] });
     },

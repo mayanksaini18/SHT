@@ -3,7 +3,7 @@ const router = express.Router();
 const { body, param } = require('express-validator');
 const auth = require('../middlewares/auth');
 const validate = require('../middlewares/validate');
-const { saveEntry, getEntries, getEntryByDate, deleteEntry } = require('../controllers/journalController');
+const { saveEntry, getEntries, getEntryByDate, deleteEntry, analyzeEntry } = require('../controllers/journalController');
 
 router.use(auth);
 
@@ -19,6 +19,12 @@ router.get('/:date',
   [param('date').matches(/^\d{4}-\d{2}-\d{2}$/).withMessage('Date must be YYYY-MM-DD')],
   validate,
   getEntryByDate
+);
+
+router.post('/:id/analyze',
+  [param('id').isMongoId()],
+  validate,
+  analyzeEntry
 );
 
 router.delete('/:id',
