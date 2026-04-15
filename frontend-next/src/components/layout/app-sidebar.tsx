@@ -21,6 +21,7 @@ import {
   DropletIcon,
   Dumbbell01Icon,
   MagicWand01Icon,
+  Note01Icon,
   Settings01Icon,
   Logout01Icon,
 } from "hugeicons-react";
@@ -34,6 +35,7 @@ const NAV_ITEMS = [
   { title: "Sleep",     href: "/sleep",   icon: Moon02Icon },
   { title: "Water",     href: "/water",   icon: DropletIcon },
   { title: "Fitness",   href: "/fitness", icon: Dumbbell01Icon },
+  { title: "Journal",   href: "/journal", icon: Note01Icon },
   { title: "Insights",  href: "/insights",icon: MagicWand01Icon },
 ];
 
