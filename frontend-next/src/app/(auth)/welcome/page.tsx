@@ -126,7 +126,7 @@ export default function WelcomePage() {
                   <img
                     src={mod.icon}
                     alt={mod.label}
-                    className="h-7 w-7 shrink-0 select-none"
+                    className="h-7 w-7 shrink-0 select-none object-contain"
                     draggable={false}
                   />
                   <div>
