@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Delete02Icon } from "hugeicons-react";
 import { useMoods, useDeleteMood } from "@/hooks/use-mood";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -78,7 +78,7 @@ export function MoodHistory() {
             }}
             className="text-muted-foreground hover:text-foreground"
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Delete02Icon className="h-3.5 w-3.5" />
           </Button>
         </div>
       ))}

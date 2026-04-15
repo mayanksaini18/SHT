@@ -1,42 +1,70 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { GoogleLogin } from "@/components/auth/google-login";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight01Icon } from "hugeicons-react";
+import {
+  SmileIcon,
+  Moon02Icon,
+  DropletIcon,
+  CheckListIcon,
+  Dumbbell01Icon,
+} from "hugeicons-react";
+import type { ComponentType } from "react";
 
-const modules = [
+interface Module {
+  icon: ComponentType<{ className?: string; size?: number; strokeWidth?: number }>;
+  iconColor: string;
+  iconBg: string;
+  label: string;
+  value: string;
+  cardColor: string;
+  style: React.CSSProperties;
+}
+
+const modules: Module[] = [
   {
-    icon: "/mood.svg",
+    icon: SmileIcon,
+    iconColor: "text-violet-500",
+    iconBg: "bg-violet-500/15",
     label: "Mood",
-    value: "😊 Feeling good",
-    color: "bg-violet-500/10 border-violet-500/20",
+    value: "Feeling good",
+    cardColor: "bg-violet-500/10 border-violet-500/20",
     style: { top: "4%", left: "2%", animationDelay: "0s", animationDuration: "4.2s" },
   },
   {
-    icon: "/sleep.svg",
+    icon: Moon02Icon,
+    iconColor: "text-sky-500",
+    iconBg: "bg-sky-500/15",
     label: "Sleep",
     value: "7.5h last night",
-    color: "bg-sky-500/10 border-sky-500/20",
+    cardColor: "bg-sky-500/10 border-sky-500/20",
     style: { top: "8%", right: "0%", animationDelay: "0.8s", animationDuration: "5s" },
   },
   {
-    icon: "/water.svg",
+    icon: DropletIcon,
+    iconColor: "text-cyan-500",
+    iconBg: "bg-cyan-500/15",
     label: "Water",
     value: "6 / 8 glasses",
-    color: "bg-cyan-500/10 border-cyan-500/20",
+    cardColor: "bg-cyan-500/10 border-cyan-500/20",
     style: { bottom: "18%", left: "0%", animationDelay: "1.6s", animationDuration: "4.6s" },
   },
   {
-    icon: "/healthy-habit.svg",
+    icon: CheckListIcon,
+    iconColor: "text-emerald-500",
+    iconBg: "bg-emerald-500/15",
     label: "Habits",
     value: "3 / 4 done",
-    color: "bg-emerald-500/10 border-emerald-500/20",
+    cardColor: "bg-emerald-500/10 border-emerald-500/20",
     style: { bottom: "8%", right: "2%", animationDelay: "2.4s", animationDuration: "5.4s" },
   },
   {
-    icon: "/fitness.svg",
+    icon: Dumbbell01Icon,
+    iconColor: "text-orange-500",
+    iconBg: "bg-orange-500/15",
     label: "Fitness",
     value: "240 kcal",
-    color: "bg-orange-500/10 border-orange-500/20",
+    cardColor: "bg-orange-500/10 border-orange-500/20",
     style: { top: "44%", right: "-2%", animationDelay: "1.2s", animationDuration: "4.8s" },
   },
 ];
@@ -83,7 +111,7 @@ export default function WelcomePage() {
               <Link href="/register">
                 <Button className="w-full h-11 font-medium">
                   Create an account
-                  <ArrowRight className="h-4 w-4 ml-2" />
+                  <ArrowRight01Icon className="h-4 w-4 ml-2" />
                 </Button>
               </Link>
 
@@ -108,34 +136,33 @@ export default function WelcomePage() {
           <div className="hidden lg:flex items-center justify-center flex-1">
             <div className="relative w-full max-w-md aspect-square">
 
-              {/* Main illustration — slow float */}
+              {/* Main illustration — static */}
               <img
                 src="/illustration.svg"
                 alt="Wellness illustration"
-                className="w-full h-full object-contain select-none animate-float"
-                style={{ animationDelay: "0s" }}
+                className="w-full h-full object-contain select-none"
                 draggable={false}
               />
 
-              {/* Floating module cards */}
-              {modules.map((mod) => (
-                <div
-                  key={mod.label}
-                  className={`animate-float-sm absolute flex items-center gap-2.5 px-3 py-2 rounded-xl border backdrop-blur-sm ${mod.color}`}
-                  style={mod.style as React.CSSProperties}
-                >
-                  <img
-                    src={mod.icon}
-                    alt={mod.label}
-                    className="h-7 w-7 shrink-0 select-none"
-                    draggable={false}
-                  />
-                  <div>
-                    <p className="text-[10px] font-medium text-muted-foreground leading-none mb-0.5">{mod.label}</p>
-                    <p className="text-xs font-semibold leading-none">{mod.value}</p>
+              {/* Floating module badges */}
+              {modules.map((mod) => {
+                const Icon = mod.icon;
+                return (
+                  <div
+                    key={mod.label}
+                    className={`animate-float-sm absolute flex items-center gap-2.5 px-3 py-2 rounded-xl border backdrop-blur-sm ${mod.cardColor}`}
+                    style={mod.style}
+                  >
+                    <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${mod.iconBg}`}>
+                      <Icon className={`h-4 w-4 ${mod.iconColor}`} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-medium text-muted-foreground leading-none mb-0.5">{mod.label}</p>
+                      <p className="text-xs font-semibold leading-none">{mod.value}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

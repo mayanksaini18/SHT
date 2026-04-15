@@ -45,4 +45,9 @@ export const CHART_COLORS = {
     fill:  "rgba(52, 211, 153, 0.1)",
     point: "#34d399",
   },
+  water: {
+    bar:      "rgba(34, 211, 238, 0.55)",   // cyan-400
+    barHover: "rgba(34, 211, 238, 0.85)",
+    barGoal:  "rgba(34, 211, 238, 0.85)",   // hit goal — full opacity
+  },
 } as const;

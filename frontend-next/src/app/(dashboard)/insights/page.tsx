@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Sparkles, RefreshCw } from "lucide-react";
+import { MagicWand01Icon, Refresh01Icon } from "hugeicons-react";
 import { useInsights, useWeeklyReport } from "@/hooks/use-insights";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -24,9 +24,9 @@ export default function InsightsPage() {
           disabled={weeklyReport.isPending}
         >
           {weeklyReport.isPending ? (
-            <><RefreshCw className="h-3.5 w-3.5 mr-2 animate-spin" /> Generating...</>
+            <><Refresh01Icon className="h-3.5 w-3.5 mr-2 animate-spin" /> Generating...</>
           ) : (
-            <><Sparkles className="h-3.5 w-3.5 mr-2" /> Generate report</>
+            <><MagicWand01Icon className="h-3.5 w-3.5 mr-2" /> Generate report</>
           )}
         </Button>
       </div>
@@ -52,7 +52,7 @@ export default function InsightsPage() {
             onClick={() => weeklyReport.mutateAsync()}
             disabled={weeklyReport.isPending}
           >
-            <Sparkles className="h-3.5 w-3.5 mr-2" /> Generate report
+            <MagicWand01Icon className="h-3.5 w-3.5 mr-2" /> Generate report
           </Button>
         </div>
       ) : (

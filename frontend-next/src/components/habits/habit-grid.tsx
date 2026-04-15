@@ -5,7 +5,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { HabitCard } from "./habit-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus } from "lucide-react";
+import { PlusSignIcon } from "hugeicons-react";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -57,7 +57,7 @@ export function HabitGrid() {
         </p>
         <Link href="/habits/new">
           <Button variant="outline" size="sm">
-            <Plus className="h-3.5 w-3.5 mr-1.5" /> Create habit
+            <PlusSignIcon className="h-3.5 w-3.5 mr-1.5" /> Create habit
           </Button>
         </Link>
       </div>

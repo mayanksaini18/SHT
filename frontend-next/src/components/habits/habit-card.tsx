@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Snowflake } from "lucide-react";
+import { Tick01Icon, SnowIcon } from "hugeicons-react";
 import type { Habit } from "@/types/habit";
 
 interface HabitCardProps {
@@ -45,7 +45,7 @@ export function HabitCard({ habit, onCheckin }: HabitCardProps) {
               className="inline-flex items-center gap-0.5 text-xs text-blue-500"
               title="Streak freeze available — miss a day and your streak is protected"
             >
-              <Snowflake className="h-3 w-3" />
+              <SnowIcon className="h-3 w-3" />
             </span>
           )}
         </div>
@@ -57,7 +57,7 @@ export function HabitCard({ habit, onCheckin }: HabitCardProps) {
             : "border-border"
         }`}
       >
-        {hasCheckedToday && <Check className="h-4 w-4" />}
+        {hasCheckedToday && <Tick01Icon className="h-4 w-4" />}
       </div>
     </div>
   );
