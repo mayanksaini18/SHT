@@ -77,7 +77,7 @@ export default function WelcomePage() {
             </div>
 
             <div
-              className="space-y-3 max-w-sm animate-fade-in-up"
+              className="space-y-0 max-w-sm animate-fade-in-up"
               style={{ animationDelay: "0.4s" }}
             >
               <Link href="/register">
@@ -86,6 +86,13 @@ export default function WelcomePage() {
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </Link>
+
+              <div className="flex items-center gap-3 py-4">
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-xs text-muted-foreground">or</span>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+
               <GoogleLogin />
             </div>
 
