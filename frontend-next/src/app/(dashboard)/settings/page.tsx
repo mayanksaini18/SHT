@@ -6,15 +6,17 @@ import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useUpdateGoals, useUpdateReminders, useUpdateEmailReminders, subscribeToPush, unsubscribeFromPush, getPushSubscription } from "@/hooks/use-settings";
+import { useUpdateGoals, useUpdateReminders, useUpdateEmailReminders, useReminderSuggestions, subscribeToPush, unsubscribeFromPush, getPushSubscription } from "@/hooks/use-settings";
 import { toast } from "sonner";
-import { Notification01Icon, NotificationOff01Icon, Mail01Icon } from "hugeicons-react";
+import { Notification01Icon, NotificationOff01Icon, Mail01Icon, Download01Icon, SparklesIcon } from "hugeicons-react";
+import { API_URL } from "@/lib/constants";
 
 export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
   const updateGoalsMutation = useUpdateGoals();
   const updateRemindersMutation = useUpdateReminders();
   const updateEmailRemindersMutation = useUpdateEmailReminders();
+  const suggestionsQuery = useReminderSuggestions();
 
   const goals = user?.goals ?? { sleep: 7, exercise: 4, mood: 3, water: 8 };
   const reminders = user?.reminderTimes ?? { mood: "", sleep: "", water: "", exercise: "" };
@@ -72,6 +74,25 @@ export default function SettingsPage() {
       toast.success("Reminders saved");
     } catch {
       toast.error("Failed to save reminders");
+    }
+  }
+
+  async function handleExport(format: "json" | "csv") {
+    try {
+      const res = await fetch(`${API_URL}/export/${format}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `lifeos-${new Date().toISOString().slice(0, 10)}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success(`Exported as ${format.toUpperCase()}`);
+    } catch {
+      toast.error("Failed to export");
     }
   }
 
@@ -186,6 +207,34 @@ export default function SettingsPage() {
           </p>
         </div>
         <div className="border rounded-xl p-5 space-y-4">
+          {suggestionsQuery.data && (
+            <div className="rounded-lg bg-muted/40 border p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <SparklesIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs font-medium">Smart suggestions</span>
+                <span className="text-[11px] text-muted-foreground ml-auto">
+                  Based on when you log (UTC)
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {(["mood", "sleep", "water", "exercise"] as const).map((m) => {
+                  const s = suggestionsQuery.data!.suggestions[m];
+                  const setters = { mood: setMoodTime, sleep: setSleepTime, water: setWaterTime, exercise: setExerciseTime };
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setters[m](s.time)}
+                      className="text-left px-2.5 py-1.5 rounded-md hover:bg-accent transition-colors border border-transparent hover:border-border"
+                    >
+                      <p className="text-xs font-medium capitalize">{m} · {s.time}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">{s.reason}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label className="text-xs">Mood reminder</Label>
@@ -258,6 +307,27 @@ export default function SettingsPage() {
             <Mail01Icon className="h-3.5 w-3.5" />
             {user?.emailReminders ? "Disable" : "Enable"}
           </Button>
+        </div>
+      </section>
+
+      {/* Export */}
+      <section className="space-y-4">
+        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Your Data</h2>
+        <div className="border rounded-xl px-5 py-4 flex items-center justify-between">
+          <div className="min-w-0 pr-4">
+            <p className="text-sm font-medium">Export all data</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Download your mood, sleep, water, exercise, habits, and journal entries.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button variant="outline" size="sm" onClick={() => handleExport("json")} className="gap-1.5">
+              <Download01Icon className="h-3.5 w-3.5" /> JSON
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleExport("csv")} className="gap-1.5">
+              <Download01Icon className="h-3.5 w-3.5" /> CSV
+            </Button>
+          </div>
         </div>
       </section>
 

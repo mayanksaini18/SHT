@@ -1,6 +1,7 @@
 import { HabitGrid } from "@/components/habits/habit-grid";
 import { WeeklyChart } from "@/components/dashboard/weekly-chart";
 import { ModuleWidgets } from "@/components/dashboard/module-widgets";
+import { WeeklyChallenges } from "@/components/dashboard/weekly-challenges";
 import { Button } from "@/components/ui/button";
 import { PlusSignIcon } from "hugeicons-react";
 import Link from "next/link";
@@ -27,6 +28,8 @@ export default async function DashboardPage() {
       </div>
 
       <ModuleWidgets />
+
+      <WeeklyChallenges />
 
       <section>
         <div className="flex items-center justify-between mb-6">
