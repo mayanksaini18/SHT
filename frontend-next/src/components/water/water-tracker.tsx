@@ -34,9 +34,10 @@ export function WaterTracker() {
       <div className="text-center py-4">
         <p className="text-6xl font-semibold tracking-tight">{glasses}</p>
         <p className="text-muted-foreground mt-2">of {goal} glasses</p>
-        <div className="w-full h-1.5 bg-muted rounded-full mt-4 max-w-xs mx-auto">
+        <p className="text-xs text-muted-foreground mt-1">{percentage}%</p>
+        <div className="w-full h-2 bg-muted rounded-full mt-3 max-w-xs mx-auto">
           <div
-            className="h-full bg-foreground rounded-full transition-all duration-300"
+            className={`h-full rounded-full transition-all duration-300 ${percentage >= 100 ? "bg-green-400" : "bg-sky-400"}`}
             style={{ width: `${percentage}%` }}
           />
         </div>
