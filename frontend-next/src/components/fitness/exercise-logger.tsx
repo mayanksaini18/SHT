@@ -52,30 +52,37 @@ export function ExerciseLogger() {
       {exercises.map((ex, i) => (
         <div key={i} className="border rounded-xl p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Exercise {i + 1}</span>
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Exercise {i + 1}
+            </span>
             {exercises.length > 1 && (
-              <button type="button" onClick={() => removeExercise(i)} className="text-muted-foreground hover:text-foreground">
-                <X className="h-3.5 w-3.5" />
+              <button
+                type="button"
+                onClick={() => removeExercise(i)}
+                className="h-5 w-5 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
+                <X className="h-3 w-3" />
               </button>
             )}
           </div>
           <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <Label className="text-xs">Name</Label>
               <Input placeholder="Running" value={ex.name} onChange={(e) => updateExercise(i, "name", e.target.value)} />
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <Label className="text-xs">Type</Label>
               <select
-                value={ex.type} onChange={(e) => updateExercise(i, "type", e.target.value)}
-                className="flex h-8 w-full rounded-lg border border-input bg-background px-2 text-sm"
+                value={ex.type}
+                onChange={(e) => updateExercise(i, "type", e.target.value)}
+                className="flex h-9 w-full rounded-lg border border-input bg-background px-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 transition-colors"
               >
                 {EXERCISE_TYPES.map((t) => (
                   <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
                 ))}
               </select>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <Label className="text-xs">Minutes</Label>
               <Input type="number" min="0" placeholder="30" value={ex.duration} onChange={(e) => updateExercise(i, "duration", e.target.value)} />
             </div>
