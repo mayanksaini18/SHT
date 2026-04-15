@@ -61,3 +61,18 @@ export function useDeleteHabit() {
     },
   });
 }
+
+export function useCheckinWithFreeze() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (habitId: string) =>
+      fetchApi<{ habit: Habit; user: { xp: number; level: number }; freezeUsed: boolean }>(
+        `/habits/${habitId}/checkin`,
+        { method: "POST" }
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["habits"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
+    },
+  });
+}

@@ -61,6 +61,16 @@ exports.deleteHabit = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+function resetFreezeIfDue(habit) {
+  const now = new Date();
+  const resetAt = new Date(habit.freezeResetAt);
+  const daysSinceReset = Math.floor((now - resetAt) / (1000 * 60 * 60 * 24));
+  if (daysSinceReset >= 7) {
+    habit.freezesAvailable = 1;
+    habit.freezeResetAt = now;
+  }
+}
+
 exports.checkIn = async (req, res, next) => {
   try {
     const habit = await Habit.findOne({ _id: req.params.id, user: req.user._id });
@@ -71,16 +81,25 @@ exports.checkIn = async (req, res, next) => {
       return res.status(400).json({ message: 'Already checked in today' });
     }
 
+    resetFreezeIfDue(habit);
+
     const lastCheckin = habit.checkins.length
       ? new Date(habit.checkins[habit.checkins.length - 1].date)
       : null;
 
     let newStreak = 1;
+    let freezeUsed = false;
     if (lastCheckin) {
       const lastDay = new Date(Date.UTC(lastCheckin.getUTCFullYear(), lastCheckin.getUTCMonth(), lastCheckin.getUTCDate()));
       const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
       const diffDays = Math.round((today - lastDay) / (1000 * 60 * 60 * 24));
-      if (diffDays === 1) newStreak = habit.streak + 1;
+      if (diffDays === 1) {
+        newStreak = habit.streak + 1;
+      } else if (diffDays === 2 && habit.freezesAvailable > 0) {
+        newStreak = habit.streak + 1;
+        habit.freezesAvailable -= 1;
+        freezeUsed = true;
+      }
     }
 
     habit.streak = newStreak;
@@ -93,7 +112,7 @@ exports.checkIn = async (req, res, next) => {
     user.level = Math.floor(user.xp / XP_PER_LEVEL) + 1;
     await user.save();
 
-    res.json({ habit, user: { xp: user.xp, level: user.level } });
+    res.json({ habit, user: { xp: user.xp, level: user.level }, freezeUsed });
   } catch (err) { next(err); }
 };
 

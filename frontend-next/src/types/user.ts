@@ -1,9 +1,25 @@
+export interface UserGoals {
+  sleep: number;
+  exercise: number;
+  mood: number;
+  water: number;
+}
+
+export interface ReminderTimes {
+  mood: string;
+  sleep: string;
+  water: string;
+  exercise: string;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
   xp: number;
   level: number;
+  goals: UserGoals;
+  reminderTimes: ReminderTimes;
 }
 
 export interface AuthResponse {

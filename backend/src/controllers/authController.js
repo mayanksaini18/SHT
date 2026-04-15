@@ -23,7 +23,11 @@ function setCookieAndRespond(res, user, accessToken, refreshToken) {
 
   res.json({
     accessToken,
-    user: { id: user._id, email: user.email, name: user.name, xp: user.xp, level: user.level }
+    user: {
+      id: user._id, email: user.email, name: user.name, xp: user.xp, level: user.level,
+      goals: user.goals ?? { sleep: 7, exercise: 4, mood: 3, water: 8 },
+      reminderTimes: user.reminderTimes ?? { mood: '', sleep: '', water: '', exercise: '' },
+    }
   });
 }
 
@@ -137,5 +141,7 @@ exports.getMe = async (req, res) => {
     email: req.user.email,
     xp: req.user.xp,
     level: req.user.level,
+    goals: req.user.goals ?? { sleep: 7, exercise: 4, mood: 3, water: 8 },
+    reminderTimes: req.user.reminderTimes ?? { mood: '', sleep: '', water: '', exercise: '' },
   });
 };

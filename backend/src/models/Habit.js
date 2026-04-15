@@ -15,7 +15,9 @@ const habitSchema = new mongoose.Schema({
   checkins: [checkinSchema],
   streak: { type: Number, default: 0 },
   bestStreak: { type: Number, default: 0 },
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true },
+  freezesAvailable: { type: Number, default: 1, min: 0, max: 1 },
+  freezeResetAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('Habit', habitSchema);

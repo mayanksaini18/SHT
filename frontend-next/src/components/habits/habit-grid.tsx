@@ -1,6 +1,6 @@
 "use client";
 
-import { useHabits, useCheckin } from "@/hooks/use-habits";
+import { useHabits, useCheckinWithFreeze } from "@/hooks/use-habits";
 import { useAuthStore } from "@/stores/auth-store";
 import { HabitCard } from "./habit-card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import Link from "next/link";
 
 export function HabitGrid() {
   const { data, isLoading } = useHabits();
-  const checkin = useCheckin();
+  const checkin = useCheckinWithFreeze();
   const updateUserStats = useAuthStore((s) => s.updateUserStats);
 
   const habits = data?.habits ?? [];
@@ -22,7 +22,11 @@ export function HabitGrid() {
       if (result.user) {
         updateUserStats(result.user.xp, result.user.level);
       }
-      toast("Habit completed! +10 XP");
+      if (result.freezeUsed) {
+        toast("Streak freeze used! Streak protected. +10 XP");
+      } else {
+        toast("Habit completed! +10 XP");
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Check-in failed");
     }

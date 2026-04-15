@@ -15,6 +15,8 @@ export interface Habit {
   bestStreak: number;
   isActive: boolean;
   createdAt: string;
+  freezesAvailable: number;
+  freezeResetAt: string;
 }
 
 export interface HabitsResponse {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { Check, Snowflake } from "lucide-react";
 import type { Habit } from "@/types/habit";
 
 interface HabitCardProps {
@@ -23,6 +23,8 @@ export function HabitCard({ habit, onCheckin }: HabitCardProps) {
     }
   });
 
+  const hasFreezeAvailable = (habit.freezesAvailable ?? 1) > 0;
+
   return (
     <div
       onClick={hasCheckedToday ? undefined : onCheckin}
@@ -34,9 +36,19 @@ export function HabitCard({ habit, onCheckin }: HabitCardProps) {
     >
       <div className="min-w-0">
         <p className="font-medium truncate">{habit.title}</p>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          {habit.streak > 0 ? `${habit.streak} day streak` : habit.frequency}
-        </p>
+        <div className="flex items-center gap-2 mt-0.5">
+          <p className="text-sm text-muted-foreground">
+            {habit.streak > 0 ? `${habit.streak} day streak` : habit.frequency}
+          </p>
+          {hasFreezeAvailable && !hasCheckedToday && habit.streak > 0 && (
+            <span
+              className="inline-flex items-center gap-0.5 text-xs text-blue-500"
+              title="Streak freeze available — miss a day and your streak is protected"
+            >
+              <Snowflake className="h-3 w-3" />
+            </span>
+          )}
+        </div>
       </div>
       <div
         className={`h-8 w-8 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${

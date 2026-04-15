@@ -11,7 +11,9 @@ const sleepRoutes = require('./routes/sleep');
 const waterRoutes = require('./routes/water');
 const fitnessRoutes = require('./routes/fitness');
 const insightRoutes = require('./routes/insights');
+const settingsRoutes = require('./routes/settings');
 const errorHandler = require('./middlewares/errorHandler');
+const { startScheduler } = require('./scheduler');
 
 // Initialize Firebase Admin (uses default credentials or service account)
 if (!admin.apps.length) {
@@ -52,8 +54,10 @@ app.use('/api/sleep', sleepRoutes);
 app.use('/api/water', waterRoutes);
 app.use('/api/fitness', fitnessRoutes);
 app.use('/api/insights', insightRoutes);
+app.use('/api/settings', settingsRoutes);
 
 app.use(errorHandler);
+startScheduler();
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on ${PORT}`));
