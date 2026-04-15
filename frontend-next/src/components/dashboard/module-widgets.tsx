@@ -1,6 +1,7 @@
 "use client";
 
-import { Smile, Moon, Droplets, Dumbbell } from "lucide-react";
+import { SmileIcon, Moon02Icon, DropletIcon, Dumbbell01Icon, Sad01Icon, UnhappyIcon, NeutralIcon, Happy01Icon } from "hugeicons-react";
+import type { ComponentType } from "react";
 import { useMoods } from "@/hooks/use-mood";
 import { useSleepHistory } from "@/hooks/use-sleep";
 import { useWaterToday } from "@/hooks/use-water";
@@ -8,8 +9,20 @@ import { useFitnessStats } from "@/hooks/use-fitness";
 import { useAuthStore } from "@/stores/auth-store";
 import Link from "next/link";
 
-const EMOJI_MAP: Record<number, string> = {
-  1: "😢", 2: "😞", 3: "😐", 4: "😊", 5: "😄",
+const MOOD_ICON: Record<number, ComponentType<{ className?: string }>> = {
+  1: Sad01Icon,
+  2: UnhappyIcon,
+  3: NeutralIcon,
+  4: SmileIcon,
+  5: Happy01Icon,
+};
+
+const MOOD_COLOR: Record<number, string> = {
+  1: "text-red-400",
+  2: "text-orange-400",
+  3: "text-yellow-400",
+  4: "text-emerald-400",
+  5: "text-violet-400",
 };
 
 function GoalBar({ value, max, colorClass = "bg-foreground" }: { value: number; max: number; colorClass?: string }) {
@@ -43,9 +56,11 @@ export function ModuleWidgets() {
   const widgets = [
     {
       href: "/mood",
-      icon: latestMood
-        ? <span className="text-lg">{EMOJI_MAP[latestMood.score]}</span>
-        : <Smile className="h-4 w-4 text-muted-foreground" />,
+      icon: (() => {
+        const Icon = latestMood ? (MOOD_ICON[latestMood.score] ?? SmileIcon) : SmileIcon;
+        const color = latestMood ? (MOOD_COLOR[latestMood.score] ?? "text-muted-foreground") : "text-muted-foreground";
+        return <Icon className={`h-4 w-4 ${color}`} />;
+      })(),
       label: "Mood",
       value: latestMood ? `${latestMood.score}/5` : "No entry",
       bar: latestMood ? <GoalBar value={latestMood.score} max={moodGoal} colorClass="bg-violet-400" /> : null,
@@ -53,7 +68,7 @@ export function ModuleWidgets() {
     },
     {
       href: "/sleep",
-      icon: <Moon className="h-4 w-4 text-muted-foreground" />,
+      icon: <Moon02Icon className="h-4 w-4 text-muted-foreground" />,
       label: "Sleep",
       value: latestSleep ? `${latestSleep.duration}h` : "No entry",
       bar: latestSleep ? <GoalBar value={latestSleep.duration} max={sleepGoal} colorClass="bg-sky-400" /> : null,
@@ -61,7 +76,7 @@ export function ModuleWidgets() {
     },
     {
       href: "/water",
-      icon: <Droplets className="h-4 w-4 text-muted-foreground" />,
+      icon: <DropletIcon className="h-4 w-4 text-muted-foreground" />,
       label: "Water",
       value: `${glasses}/${waterGoal}`,
       bar: <GoalBar value={glasses} max={waterGoal} colorClass="bg-sky-400" />,
@@ -69,7 +84,7 @@ export function ModuleWidgets() {
     },
     {
       href: "/fitness",
-      icon: <Dumbbell className="h-4 w-4 text-muted-foreground" />,
+      icon: <Dumbbell01Icon className="h-4 w-4 text-muted-foreground" />,
       label: "Fitness",
       value: `${activeDays}/${exerciseGoal} days`,
       bar: <GoalBar value={activeDays} max={exerciseGoal} colorClass="bg-emerald-400" />,
@@ -78,19 +93,19 @@ export function ModuleWidgets() {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-stretch">
       {widgets.map((w) => (
-        <Link key={w.href} href={w.href}>
-          <div className="border rounded-xl p-4 hover:bg-muted/50 transition-colors cursor-pointer">
+        <Link key={w.href} href={w.href} className="h-full">
+          <div className="h-full border rounded-xl p-4 hover:bg-muted/50 transition-colors cursor-pointer flex flex-col">
             <div className="flex items-center gap-2 mb-3">
               {w.icon}
               <span className="text-xs text-muted-foreground">{w.label}</span>
             </div>
             <p className="text-lg font-semibold tracking-tight">{w.value}</p>
             {w.bar}
-            {w.subtext && (
-              <p className="text-[10px] text-muted-foreground mt-1">{w.subtext}</p>
-            )}
+            <p className="text-[10px] text-muted-foreground mt-1 min-h-[14px]">
+              {w.subtext ?? ""}
+            </p>
           </div>
         </Link>
       ))}

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, Minus } from "lucide-react";
+import { PlusSignIcon, MinusSignIcon } from "hugeicons-react";
 import { useWaterToday, useLogWater, useSetWaterGoal } from "@/hooks/use-water";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -48,7 +48,7 @@ export function WaterTracker() {
         disabled={logWater.isPending}
         className="w-full h-10"
       >
-        <Plus className="h-4 w-4 mr-2" />
+        <PlusSignIcon className="h-4 w-4 mr-2" />
         Add glass
       </Button>
 
@@ -56,11 +56,11 @@ export function WaterTracker() {
         <span className="text-sm text-muted-foreground">Daily goal</span>
         <div className="flex items-center gap-3">
           <Button variant="outline" size="icon-sm" onClick={() => handleGoalChange(goal - 1)} disabled={goal <= 1}>
-            <Minus className="h-3 w-3" />
+            <MinusSignIcon className="h-3 w-3" />
           </Button>
           <span className="text-sm font-medium w-6 text-center">{goal}</span>
           <Button variant="outline" size="icon-sm" onClick={() => handleGoalChange(goal + 1)} disabled={goal >= 50}>
-            <Plus className="h-3 w-3" />
+            <PlusSignIcon className="h-3 w-3" />
           </Button>
         </div>
       </div>

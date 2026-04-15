@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, X } from "lucide-react";
+import { PlusSignIcon, Cancel01Icon } from "hugeicons-react";
 import { useLogExercise } from "@/hooks/use-fitness";
 import { toast } from "sonner";
 
@@ -61,7 +61,7 @@ export function ExerciseLogger() {
                 onClick={() => removeExercise(i)}
                 className="h-5 w-5 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               >
-                <X className="h-3 w-3" />
+                <Cancel01Icon className="h-3 w-3" />
               </button>
             )}
           </div>
@@ -91,7 +91,7 @@ export function ExerciseLogger() {
       ))}
 
       <button type="button" onClick={addExercise} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-        <Plus className="h-3.5 w-3.5" /> Add another
+        <PlusSignIcon className="h-3.5 w-3.5" /> Add another
       </button>
 
       <Button type="submit" disabled={logExercise.isPending} className="w-full h-10">

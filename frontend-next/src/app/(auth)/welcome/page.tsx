@@ -1,11 +1,18 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { GoogleLogin } from "@/components/auth/google-login";
-import { ArrowRight, Smile, Moon, Droplets, ListChecks, Dumbbell } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { ArrowRight01Icon } from "hugeicons-react";
+import {
+  SmileIcon,
+  Moon02Icon,
+  DropletIcon,
+  CheckListIcon,
+  Dumbbell01Icon,
+} from "hugeicons-react";
+import type { ComponentType } from "react";
 
 interface Module {
-  icon: LucideIcon;
+  icon: ComponentType<{ className?: string; size?: number; strokeWidth?: number }>;
   iconColor: string;
   iconBg: string;
   label: string;
@@ -16,7 +23,7 @@ interface Module {
 
 const modules: Module[] = [
   {
-    icon: Smile,
+    icon: SmileIcon,
     iconColor: "text-violet-500",
     iconBg: "bg-violet-500/15",
     label: "Mood",
@@ -25,7 +32,7 @@ const modules: Module[] = [
     style: { top: "4%", left: "2%", animationDelay: "0s", animationDuration: "4.2s" },
   },
   {
-    icon: Moon,
+    icon: Moon02Icon,
     iconColor: "text-sky-500",
     iconBg: "bg-sky-500/15",
     label: "Sleep",
@@ -34,7 +41,7 @@ const modules: Module[] = [
     style: { top: "8%", right: "0%", animationDelay: "0.8s", animationDuration: "5s" },
   },
   {
-    icon: Droplets,
+    icon: DropletIcon,
     iconColor: "text-cyan-500",
     iconBg: "bg-cyan-500/15",
     label: "Water",
@@ -43,7 +50,7 @@ const modules: Module[] = [
     style: { bottom: "18%", left: "0%", animationDelay: "1.6s", animationDuration: "4.6s" },
   },
   {
-    icon: ListChecks,
+    icon: CheckListIcon,
     iconColor: "text-emerald-500",
     iconBg: "bg-emerald-500/15",
     label: "Habits",
@@ -52,7 +59,7 @@ const modules: Module[] = [
     style: { bottom: "8%", right: "2%", animationDelay: "2.4s", animationDuration: "5.4s" },
   },
   {
-    icon: Dumbbell,
+    icon: Dumbbell01Icon,
     iconColor: "text-orange-500",
     iconBg: "bg-orange-500/15",
     label: "Fitness",
@@ -104,7 +111,7 @@ export default function WelcomePage() {
               <Link href="/register">
                 <Button className="w-full h-11 font-medium">
                   Create an account
-                  <ArrowRight className="h-4 w-4 ml-2" />
+                  <ArrowRight01Icon className="h-4 w-4 ml-2" />
                 </Button>
               </Link>
 

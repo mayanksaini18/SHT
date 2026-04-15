@@ -14,27 +14,27 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import {
-  LayoutDashboard,
-  ListChecks,
-  Smile,
-  Moon,
-  Droplets,
-  Dumbbell,
-  Sparkles,
-  Settings,
-  LogOut,
-} from "lucide-react";
+  DashboardSquare01Icon,
+  CheckListIcon,
+  SmileIcon,
+  Moon02Icon,
+  DropletIcon,
+  Dumbbell01Icon,
+  MagicWand01Icon,
+  Settings01Icon,
+  Logout01Icon,
+} from "hugeicons-react";
 import { useAuthStore } from "@/stores/auth-store";
 import { fetchApi } from "@/lib/api";
 
 const NAV_ITEMS = [
-  { title: "Dashboard", href: "/",        icon: LayoutDashboard },
-  { title: "Habits",    href: "/habits",  icon: ListChecks },
-  { title: "Mood",      href: "/mood",    icon: Smile },
-  { title: "Sleep",     href: "/sleep",   icon: Moon },
-  { title: "Water",     href: "/water",   icon: Droplets },
-  { title: "Fitness",   href: "/fitness", icon: Dumbbell },
-  { title: "Insights",  href: "/insights",icon: Sparkles },
+  { title: "Dashboard", href: "/",        icon: DashboardSquare01Icon },
+  { title: "Habits",    href: "/habits",  icon: CheckListIcon },
+  { title: "Mood",      href: "/mood",    icon: SmileIcon },
+  { title: "Sleep",     href: "/sleep",   icon: Moon02Icon },
+  { title: "Water",     href: "/water",   icon: DropletIcon },
+  { title: "Fitness",   href: "/fitness", icon: Dumbbell01Icon },
+  { title: "Insights",  href: "/insights",icon: MagicWand01Icon },
 ];
 
 export function AppSidebar() {
@@ -99,7 +99,7 @@ export function AppSidebar() {
         <div className="space-y-0.5">
           <Link href="/settings">
             <SidebarMenuButton isActive={pathname === "/settings"}>
-              <Settings className="h-4 w-4" />
+              <Settings01Icon className="h-4 w-4" />
               <span>Settings</span>
             </SidebarMenuButton>
           </Link>
@@ -108,7 +108,7 @@ export function AppSidebar() {
             onClick={handleLogout}
             className="text-muted-foreground hover:text-foreground w-full"
           >
-            <LogOut className="h-4 w-4" />
+            <Logout01Icon className="h-4 w-4" />
             <span>Sign out</span>
           </SidebarMenuButton>
         </div>

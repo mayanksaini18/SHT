@@ -4,11 +4,13 @@ import { useWaterHistory } from "@/hooks/use-water";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip } from "chart.js";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useChartScaleColors, CHART_COLORS } from "@/lib/chart-theme";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
 export function WaterHistory() {
   const { data: entries, isLoading } = useWaterHistory(14);
+  const scale = useChartScaleColors();
 
   if (isLoading) return <Skeleton className="h-52 w-full rounded-xl" />;
 
@@ -37,8 +39,9 @@ export function WaterHistory() {
             label: "Glasses",
             data: sorted.map((e) => e.glasses),
             backgroundColor: sorted.map((e) =>
-              e.glasses >= e.goal ? "rgba(0,0,0,0.15)" : "rgba(0,0,0,0.06)"
+              e.glasses >= e.goal ? CHART_COLORS.water.barGoal : CHART_COLORS.water.bar
             ),
+            hoverBackgroundColor: CHART_COLORS.water.barHover,
             borderRadius: 4,
           }],
         }}
@@ -46,8 +49,17 @@ export function WaterHistory() {
           responsive: true,
           plugins: { legend: { display: false } },
           scales: {
-            y: { beginAtZero: true, border: { display: false }, grid: { color: "rgba(0,0,0,0.04)" } },
-            x: { border: { display: false }, grid: { display: false } },
+            y: {
+              beginAtZero: true,
+              border: { display: false },
+              grid: { color: scale.grid },
+              ticks: { color: scale.tickColor },
+            },
+            x: {
+              border: { display: false },
+              grid: { display: false },
+              ticks: { color: scale.tickColor },
+            },
           },
         }}
       />

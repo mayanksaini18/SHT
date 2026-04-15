@@ -2,7 +2,7 @@ import { HabitGrid } from "@/components/habits/habit-grid";
 import { WeeklyChart } from "@/components/dashboard/weekly-chart";
 import { ModuleWidgets } from "@/components/dashboard/module-widgets";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { PlusSignIcon } from "hugeicons-react";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 
@@ -33,7 +33,7 @@ export default async function DashboardPage() {
           <h2 className="text-lg font-semibold tracking-tight">Habits</h2>
           <Link href="/habits/new">
             <Button variant="outline" size="sm">
-              <Plus className="w-3.5 h-3.5 mr-1.5" /> New habit
+              <PlusSignIcon className="w-3.5 h-3.5 mr-1.5" /> New habit
             </Button>
           </Link>
         </div>

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useCreateHabit } from "@/hooks/use-habits";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft01Icon } from "hugeicons-react";
 import Link from "next/link";
 
 export function HabitForm() {
@@ -50,7 +50,7 @@ export function HabitForm() {
           href="/"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-8"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
+          <ArrowLeft01Icon className="h-3.5 w-3.5" />
           Back
         </Link>
         <h1 className="text-2xl font-semibold tracking-tight">New habit</h1>

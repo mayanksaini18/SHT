@@ -10,7 +10,7 @@ import { fetchApi } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 import { GoogleLogin } from "@/components/auth/google-login";
 import type { AuthResponse } from "@/types/user";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft01Icon } from "hugeicons-react";
 
 export function RegisterForm() {
   const [name, setName] = useState("");
@@ -51,7 +51,7 @@ export function RegisterForm() {
           href="/welcome"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-8"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
+          <ArrowLeft01Icon className="h-3.5 w-3.5" />
           Back
         </Link>
         <h1 className="text-2xl font-semibold tracking-tight">Create an account</h1>

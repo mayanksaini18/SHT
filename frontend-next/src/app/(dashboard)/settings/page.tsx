@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useUpdateGoals, useUpdateReminders, subscribeToPush, unsubscribeFromPush, getPushSubscription } from "@/hooks/use-settings";
 import { toast } from "sonner";
-import { Bell, BellOff } from "lucide-react";
+import { Notification01Icon, NotificationOff01Icon } from "hugeicons-react";
 
 export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
@@ -220,8 +220,8 @@ export default function SettingsPage() {
             className="gap-1.5"
           >
             {isPushEnabled
-              ? <><BellOff className="h-3.5 w-3.5" /> Disable</>
-              : <><Bell className="h-3.5 w-3.5" /> Enable</>}
+              ? <><NotificationOff01Icon className="h-3.5 w-3.5" /> Disable</>
+              : <><Notification01Icon className="h-3.5 w-3.5" /> Enable</>}
           </Button>
         </div>
       </section>

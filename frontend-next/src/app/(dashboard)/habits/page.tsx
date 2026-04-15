@@ -1,6 +1,6 @@
 import { HabitGrid } from "@/components/habits/habit-grid";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { PlusSignIcon } from "hugeicons-react";
 import Link from "next/link";
 
 export default function HabitsPage() {
@@ -15,7 +15,7 @@ export default function HabitsPage() {
           <img src="/healthy-habit.svg" alt="" className="hidden md:block h-24 select-none opacity-80" draggable={false} />
           <Link href="/habits/new">
             <Button variant="outline" size="sm">
-              <Plus className="w-3.5 h-3.5 mr-1.5" /> New habit
+              <PlusSignIcon className="w-3.5 h-3.5 mr-1.5" /> New habit
             </Button>
           </Link>
         </div>
