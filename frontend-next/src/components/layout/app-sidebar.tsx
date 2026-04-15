@@ -22,6 +22,7 @@ import {
   Dumbbell01Icon,
   MagicWand01Icon,
   Note01Icon,
+  BubbleChatIcon,
   Settings01Icon,
   Logout01Icon,
 } from "hugeicons-react";
@@ -37,6 +38,7 @@ const NAV_ITEMS = [
   { title: "Fitness",   href: "/fitness", icon: Dumbbell01Icon },
   { title: "Journal",   href: "/journal", icon: Note01Icon },
   { title: "Insights",  href: "/insights",icon: MagicWand01Icon },
+  { title: "Coach",     href: "/chat",    icon: BubbleChatIcon },
 ];
 
 export function AppSidebar() {
