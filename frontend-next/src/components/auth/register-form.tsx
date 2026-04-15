@@ -61,7 +61,9 @@ export function RegisterForm() {
       </div>
 
       {error && (
-        <p className="text-sm text-destructive">{error}</p>
+        <div className="rounded-lg border border-destructive/30 bg-destructive/8 px-4 py-3">
+          <p className="text-sm text-destructive">{error}</p>
+        </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
