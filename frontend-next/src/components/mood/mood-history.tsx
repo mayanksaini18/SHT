@@ -10,6 +10,14 @@ const EMOJI_MAP: Record<number, string> = {
   1: "😢", 2: "😞", 3: "😐", 4: "😊", 5: "😄",
 };
 
+const SCORE_BG: Record<number, string> = {
+  1: "bg-red-500/15 text-red-400",
+  2: "bg-orange-500/15 text-orange-400",
+  3: "bg-yellow-500/15 text-yellow-400",
+  4: "bg-emerald-500/15 text-emerald-400",
+  5: "bg-violet-500/15 text-violet-400",
+};
+
 export function MoodHistory() {
   const { data: moods, isLoading } = useMoods();
   const deleteMood = useDeleteMood();
@@ -41,7 +49,9 @@ export function MoodHistory() {
           className="flex items-center justify-between py-3 border-b last:border-0"
         >
           <div className="flex items-center gap-3">
-            <span className="text-xl">{EMOJI_MAP[mood.score]}</span>
+            <span className={`text-xl w-9 h-9 flex items-center justify-center rounded-full ${SCORE_BG[mood.score]}`}>
+              {EMOJI_MAP[mood.score]}
+            </span>
             <div>
               <p className="text-sm font-medium">
                 {new Date(mood.date).toLocaleDateString("en-US", {
