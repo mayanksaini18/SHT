@@ -29,6 +29,18 @@ export function useUpdateReminders() {
   });
 }
 
+export function useUpdateEmailReminders() {
+  const updateEmailReminders = useAuthStore((s) => s.updateEmailReminders);
+  return useMutation({
+    mutationFn: (enabled: boolean) =>
+      fetchApi<{ emailReminders: boolean }>("/settings/email-reminders", {
+        method: "PUT",
+        body: JSON.stringify({ enabled }),
+      }),
+    onSuccess: (data) => updateEmailReminders(data.emailReminders),
+  });
+}
+
 export async function getVapidPublicKey(): Promise<string> {
   const data = await fetchApi<{ publicKey: string }>("/settings/vapid-public-key");
   return data.publicKey;

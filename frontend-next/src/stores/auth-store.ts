@@ -7,6 +7,7 @@ interface AuthState {
   updateUserStats: (xp: number, level: number) => void;
   updateGoals: (goals: UserGoals) => void;
   updateReminderTimes: (reminderTimes: ReminderTimes) => void;
+  updateEmailReminders: (emailReminders: boolean) => void;
   clearUser: () => void;
 }
 
@@ -24,6 +25,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   updateReminderTimes: (reminderTimes) =>
     set((state) => ({
       user: state.user ? { ...state.user, reminderTimes } : null,
+    })),
+  updateEmailReminders: (emailReminders) =>
+    set((state) => ({
+      user: state.user ? { ...state.user, emailReminders } : null,
     })),
   clearUser: () => set({ user: null }),
 }));
