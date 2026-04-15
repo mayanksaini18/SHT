@@ -15,6 +15,7 @@ const settingsRoutes = require('./routes/settings');
 const journalRoutes = require('./routes/journal');
 const chatRoutes = require('./routes/chat');
 const challengeRoutes = require('./routes/challenges');
+const exportRoutes = require('./routes/export');
 const errorHandler = require('./middlewares/errorHandler');
 const { startScheduler } = require('./scheduler');
 
@@ -61,6 +62,7 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/journal', journalRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/challenges', challengeRoutes);
+app.use('/api/export', exportRoutes);
 
 app.use(errorHandler);
 startScheduler();

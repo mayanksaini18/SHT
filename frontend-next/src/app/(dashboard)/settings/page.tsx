@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useUpdateGoals, useUpdateReminders, useUpdateEmailReminders, subscribeToPush, unsubscribeFromPush, getPushSubscription } from "@/hooks/use-settings";
 import { toast } from "sonner";
-import { Notification01Icon, NotificationOff01Icon, Mail01Icon } from "hugeicons-react";
+import { Notification01Icon, NotificationOff01Icon, Mail01Icon, Download01Icon } from "hugeicons-react";
+import { API_URL } from "@/lib/constants";
 
 export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
@@ -72,6 +73,25 @@ export default function SettingsPage() {
       toast.success("Reminders saved");
     } catch {
       toast.error("Failed to save reminders");
+    }
+  }
+
+  async function handleExport(format: "json" | "csv") {
+    try {
+      const res = await fetch(`${API_URL}/export/${format}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `lifeos-${new Date().toISOString().slice(0, 10)}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success(`Exported as ${format.toUpperCase()}`);
+    } catch {
+      toast.error("Failed to export");
     }
   }
 
@@ -258,6 +278,27 @@ export default function SettingsPage() {
             <Mail01Icon className="h-3.5 w-3.5" />
             {user?.emailReminders ? "Disable" : "Enable"}
           </Button>
+        </div>
+      </section>
+
+      {/* Export */}
+      <section className="space-y-4">
+        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Your Data</h2>
+        <div className="border rounded-xl px-5 py-4 flex items-center justify-between">
+          <div className="min-w-0 pr-4">
+            <p className="text-sm font-medium">Export all data</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Download your mood, sleep, water, exercise, habits, and journal entries.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button variant="outline" size="sm" onClick={() => handleExport("json")} className="gap-1.5">
+              <Download01Icon className="h-3.5 w-3.5" /> JSON
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleExport("csv")} className="gap-1.5">
+              <Download01Icon className="h-3.5 w-3.5" /> CSV
+            </Button>
+          </div>
         </div>
       </section>
 
