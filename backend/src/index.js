@@ -12,6 +12,7 @@ const waterRoutes = require('./routes/water');
 const fitnessRoutes = require('./routes/fitness');
 const insightRoutes = require('./routes/insights');
 const settingsRoutes = require('./routes/settings');
+const journalRoutes = require('./routes/journal');
 const errorHandler = require('./middlewares/errorHandler');
 const { startScheduler } = require('./scheduler');
 
@@ -55,6 +56,7 @@ app.use('/api/water', waterRoutes);
 app.use('/api/fitness', fitnessRoutes);
 app.use('/api/insights', insightRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/journal', journalRoutes);
 
 app.use(errorHandler);
 startScheduler();

@@ -98,6 +98,198 @@ ${JSON.stringify(weeklyData, null, 2)}`
   } catch (err) { next(err); }
 };
 
+// Pearson correlation coefficient for two equal-length arrays
+function pearson(xs, ys) {
+  const n = xs.length;
+  if (n < 3) return 0;
+  const meanX = xs.reduce((a, b) => a + b, 0) / n;
+  const meanY = ys.reduce((a, b) => a + b, 0) / n;
+  const num = xs.reduce((s, x, i) => s + (x - meanX) * (ys[i] - meanY), 0);
+  const den = Math.sqrt(
+    xs.reduce((s, x) => s + (x - meanX) ** 2, 0) *
+    ys.reduce((s, y) => s + (y - meanY) ** 2, 0)
+  );
+  return den === 0 ? 0 : Math.round((num / den) * 100) / 100;
+}
+
+function strength(r) {
+  const abs = Math.abs(r);
+  if (abs >= 0.6) return 'strong';
+  if (abs >= 0.35) return 'moderate';
+  return 'weak';
+}
+
+function direction(r) {
+  return r >= 0 ? 'positive' : 'negative';
+}
+
+exports.getCorrelations = async (req, res, next) => {
+  try {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now);
+    thirtyDaysAgo.setUTCDate(now.getUTCDate() - 30);
+
+    const [moods, sleeps, waters, habits, fitness] = await Promise.all([
+      Mood.find({ user: req.user._id, date: { $gte: thirtyDaysAgo } }).sort({ date: 1 }),
+      Sleep.find({ user: req.user._id, date: { $gte: thirtyDaysAgo } }).sort({ date: 1 }),
+      Water.find({ user: req.user._id, date: { $gte: thirtyDaysAgo } }).sort({ date: 1 }),
+      Habit.find({ user: req.user._id, isActive: true }),
+      Fitness.find({ user: req.user._id, date: { $gte: thirtyDaysAgo } }).sort({ date: 1 }),
+    ]);
+
+    const correlations = [];
+
+    // Build date-keyed maps
+    const moodByDate = Object.fromEntries(moods.map(m => [m.date.toISOString().slice(0, 10), m.score]));
+    const sleepByDate = Object.fromEntries(sleeps.map(s => [s.date.toISOString().slice(0, 10), s.duration]));
+    const waterByDate = Object.fromEntries(waters.map(w => [w.date.toISOString().slice(0, 10), w.glasses]));
+    const fitnessDates = new Set(fitness.map(f => f.date.toISOString().slice(0, 10)));
+
+    // 1. Sleep duration → next-day mood
+    const sleepMoodPairs = sleeps
+      .map(s => {
+        const sleepDate = new Date(s.date);
+        const nextDay = new Date(sleepDate);
+        nextDay.setUTCDate(sleepDate.getUTCDate() + 1);
+        const nextKey = nextDay.toISOString().slice(0, 10);
+        const mood = moodByDate[nextKey];
+        return mood != null ? { sleep: s.duration, mood } : null;
+      })
+      .filter(Boolean);
+
+    if (sleepMoodPairs.length >= 4) {
+      const r = pearson(sleepMoodPairs.map(p => p.sleep), sleepMoodPairs.map(p => p.mood));
+      const str = strength(r);
+      if (str !== 'weak') {
+        correlations.push({
+          id: 'sleep-mood',
+          title: r > 0 ? 'More sleep → better mood' : 'Sleep duration vs mood mismatch',
+          description: r > 0
+            ? `On days after you sleep longer, your mood tends to be higher. Based on ${sleepMoodPairs.length} data points.`
+            : `Interestingly, longer sleep nights don't seem to improve your next-day mood. Consider sleep quality, not just duration.`,
+          strength: str,
+          direction: direction(r),
+          r,
+        });
+      }
+    }
+
+    // 2. Water intake → same-day mood
+    const waterMoodDates = Object.keys(waterByDate).filter(d => moodByDate[d] != null);
+    if (waterMoodDates.length >= 4) {
+      const r = pearson(
+        waterMoodDates.map(d => waterByDate[d]),
+        waterMoodDates.map(d => moodByDate[d])
+      );
+      const str = strength(r);
+      if (str !== 'weak') {
+        correlations.push({
+          id: 'water-mood',
+          title: r > 0 ? 'Hydration lifts your mood' : 'Water intake and mood are inversely linked',
+          description: r > 0
+            ? `Days when you drink more water correlate with higher mood scores. Staying hydrated is paying off.`
+            : `You tend to track lower mood on high-water days — could be that you drink more when you feel off. Consider tracking why.`,
+          strength: str,
+          direction: direction(r),
+          r,
+        });
+      }
+    }
+
+    // 3. Exercise days → sleep duration
+    const exerciseSleepPairs = sleeps
+      .map(s => {
+        const dateKey = s.date.toISOString().slice(0, 10);
+        return { exercised: fitnessDates.has(dateKey) ? 1 : 0, sleep: s.duration };
+      });
+
+    if (exerciseSleepPairs.length >= 4) {
+      const r = pearson(
+        exerciseSleepPairs.map(p => p.exercised),
+        exerciseSleepPairs.map(p => p.sleep)
+      );
+      const str = strength(r);
+      if (str !== 'weak') {
+        correlations.push({
+          id: 'exercise-sleep',
+          title: r > 0 ? 'Exercise improves your sleep' : 'Exercise days linked to shorter sleep',
+          description: r > 0
+            ? `On days you work out, you tend to sleep longer. Your body is rewarding the effort.`
+            : `You seem to sleep less on exercise days — possibly due to late workouts or higher energy. Try exercising earlier in the day.`,
+          strength: str,
+          direction: direction(r),
+          r,
+        });
+      }
+    }
+
+    // 4. Habit completions per day → mood
+    const habitCheckinByDate = {};
+    habits.forEach(h => {
+      h.checkins
+        .filter(c => new Date(c.date) >= thirtyDaysAgo)
+        .forEach(c => {
+          const key = new Date(c.date).toISOString().slice(0, 10);
+          habitCheckinByDate[key] = (habitCheckinByDate[key] || 0) + 1;
+        });
+    });
+    const habitMoodDates = Object.keys(habitCheckinByDate).filter(d => moodByDate[d] != null);
+    if (habitMoodDates.length >= 4) {
+      const r = pearson(
+        habitMoodDates.map(d => habitCheckinByDate[d]),
+        habitMoodDates.map(d => moodByDate[d])
+      );
+      const str = strength(r);
+      if (str !== 'weak') {
+        correlations.push({
+          id: 'habits-mood',
+          title: r > 0 ? 'Completing habits boosts mood' : 'High habit days and mood don\'t align',
+          description: r > 0
+            ? `Days with more habit completions tend to have higher mood scores. Consistency is building your sense of progress.`
+            : `You rate your mood lower on high-habit days. This might mean you're pushing too hard — consider whether your goals are sustainable.`,
+          strength: str,
+          direction: direction(r),
+          r,
+        });
+      }
+    }
+
+    // 5. Sleep consistency (low std dev) vs avg mood
+    if (sleeps.length >= 5) {
+      const sleepDurations = sleeps.map(s => s.duration);
+      const mean = sleepDurations.reduce((a, b) => a + b, 0) / sleepDurations.length;
+      const stdDev = Math.sqrt(sleepDurations.reduce((s, d) => s + (d - mean) ** 2, 0) / sleepDurations.length);
+      const avgMood = moods.length ? moods.reduce((s, m) => s + m.score, 0) / moods.length : null;
+
+      if (avgMood != null) {
+        const isConsistent = stdDev < 1;
+        const moodGood = avgMood >= 3.5;
+        if (isConsistent && moodGood) {
+          correlations.push({
+            id: 'sleep-consistency',
+            title: 'Consistent sleep schedule supports good mood',
+            description: `Your sleep varies by only ${stdDev.toFixed(1)}h and your average mood is ${avgMood.toFixed(1)}/5. A regular sleep schedule is one of your strongest wellness habits.`,
+            strength: 'strong',
+            direction: 'positive',
+            r: null,
+          });
+        } else if (!isConsistent && !moodGood) {
+          correlations.push({
+            id: 'sleep-consistency',
+            title: 'Irregular sleep may be affecting your mood',
+            description: `Your sleep varies by ${stdDev.toFixed(1)}h night to night. Inconsistent sleep is often linked to lower mood. Try going to bed at the same time each night.`,
+            strength: 'moderate',
+            direction: 'negative',
+            r: null,
+          });
+        }
+      }
+    }
+
+    res.json({ correlations, dataPoints: { mood: moods.length, sleep: sleeps.length, water: waters.length, fitness: fitness.length } });
+  } catch (err) { next(err); }
+};
+
 exports.getInsights = async (req, res, next) => {
   try {
     const insights = await Insight.find({ user: req.user._id })
