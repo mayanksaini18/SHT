@@ -12,11 +12,13 @@ import {
   Filler,
 } from "chart.js";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useChartColors } from "@/lib/chart-theme";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
 
 export function MoodChart() {
   const { data: moods, isLoading } = useMoods();
+  const c = useChartColors();
 
   if (isLoading) return <Skeleton className="h-52 w-full rounded-xl" />;
 
@@ -46,19 +48,29 @@ export function MoodChart() {
           datasets: [{
             label: "Mood",
             data: sorted.map((m) => m.score),
-            borderColor: "rgb(0, 0, 0)",
-            backgroundColor: "rgba(0, 0, 0, 0.04)",
+            borderColor: c.line,
+            backgroundColor: c.fill,
             fill: true,
             tension: 0.4,
             borderWidth: 1.5,
             pointRadius: 3,
+            pointBackgroundColor: c.line,
           }],
         }}
         options={{
           responsive: true,
           scales: {
-            y: { min: 1, max: 5, ticks: { stepSize: 1 }, border: { display: false }, grid: { color: "rgba(0,0,0,0.04)" } },
-            x: { border: { display: false }, grid: { display: false } },
+            y: {
+              min: 1, max: 5,
+              ticks: { stepSize: 1, color: c.tickColor },
+              border: { display: false },
+              grid: { color: c.grid },
+            },
+            x: {
+              border: { display: false },
+              grid: { display: false },
+              ticks: { color: c.tickColor },
+            },
           },
           plugins: { legend: { display: false } },
         }}

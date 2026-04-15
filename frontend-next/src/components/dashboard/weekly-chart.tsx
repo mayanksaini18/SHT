@@ -12,6 +12,7 @@ import {
 import { Line } from "react-chartjs-2";
 import { useWeeklyAnalytics } from "@/hooks/use-habits";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useChartColors } from "@/lib/chart-theme";
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
 
@@ -22,6 +23,7 @@ interface StatsProps {
 
 export function WeeklyChart({ xp, level }: StatsProps) {
   const { data, isLoading, isError } = useWeeklyAnalytics();
+  const c = useChartColors();
 
   const chartData = data
     ? {
@@ -31,8 +33,9 @@ export function WeeklyChart({ xp, level }: StatsProps) {
             label: "Check-ins",
             data: data.map((d) => d.count),
             fill: true,
-            borderColor: "rgb(0, 0, 0)",
-            backgroundColor: "rgba(0, 0, 0, 0.04)",
+            borderColor: c.line,
+            backgroundColor: c.fill,
+            pointBackgroundColor: c.line,
             tension: 0.4,
             borderWidth: 1.5,
           },
@@ -67,12 +70,12 @@ export function WeeklyChart({ xp, level }: StatsProps) {
               scales: {
                 x: {
                   grid: { display: false },
-                  ticks: { font: { size: 11 } },
+                  ticks: { font: { size: 11 }, color: c.tickColor },
                   border: { display: false },
                 },
                 y: {
-                  grid: { color: "rgba(0,0,0,0.04)" },
-                  ticks: { stepSize: 1, font: { size: 11 } },
+                  grid: { color: c.grid },
+                  ticks: { stepSize: 1, font: { size: 11 }, color: c.tickColor },
                   border: { display: false },
                 },
               },
