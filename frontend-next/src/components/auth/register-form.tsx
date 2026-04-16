@@ -2,15 +2,19 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { fetchApi } from "@/lib/api";
-import { useAuthStore } from "@/stores/auth-store";
+import { fetchApi, ApiError } from "@/lib/api";
 import { GoogleLogin } from "@/components/auth/google-login";
-import type { AuthResponse } from "@/types/user";
-import { ArrowLeft01Icon } from "hugeicons-react";
+import { ArrowLeft01Icon, Mail01Icon } from "hugeicons-react";
+
+type RegisterResponse = {
+  ok: boolean;
+  requiresVerification?: boolean;
+  email: string;
+  message?: string;
+};
 
 export function RegisterForm() {
   const [name, setName] = useState("");
@@ -18,30 +22,86 @@ export function RegisterForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const setUser = useAuthStore((s) => s.setUser);
-  const router = useRouter();
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [resending, setResending] = useState(false);
+  const [resendNote, setResendNote] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      const data = await fetchApi<AuthResponse>("/auth/register", {
+      const data = await fetchApi<RegisterResponse>("/auth/register", {
         method: "POST",
         body: JSON.stringify({ name, email, password }),
       });
-      await fetch("/api/auth/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accessToken: data.accessToken }),
-      });
-      setUser(data.user);
-      router.push("/");
+      setSentTo(data.email || email);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleResend() {
+    if (!sentTo) return;
+    setResending(true);
+    setResendNote("");
+    try {
+      await fetchApi("/auth/resend-verification", {
+        method: "POST",
+        body: JSON.stringify({ email: sentTo }),
+      });
+      setResendNote("Sent. Check your inbox.");
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Could not resend. Try again later.";
+      setResendNote(msg);
+    } finally {
+      setResending(false);
+    }
+  }
+
+  if (sentTo) {
+    return (
+      <div className="w-full max-w-sm space-y-6">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-500">
+          <Mail01Icon className="h-6 w-6" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Check your inbox</h1>
+          <p className="text-sm text-muted-foreground mt-2">
+            We sent a verification link to{" "}
+            <span className="text-foreground font-medium">{sentTo}</span>. Tap it to finish creating your account.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <Button variant="outline" className="w-full h-10" onClick={handleResend} disabled={resending}>
+            {resending ? "Sending…" : "Resend email"}
+          </Button>
+          {resendNote && (
+            <p className="text-xs text-muted-foreground text-center">{resendNote}</p>
+          )}
+          <p className="text-xs text-muted-foreground text-center">
+            Wrong address?{" "}
+            <button
+              type="button"
+              onClick={() => { setSentTo(null); setResendNote(""); }}
+              className="text-foreground hover:underline font-medium"
+            >
+              Start over
+            </button>
+          </p>
+        </div>
+
+        <p className="text-center text-sm text-muted-foreground pt-2">
+          Already verified?{" "}
+          <Link href="/login" className="text-foreground hover:underline font-medium">
+            Sign in
+          </Link>
+        </p>
+      </div>
+    );
   }
 
   return (

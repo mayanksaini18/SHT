@@ -21,6 +21,9 @@ const userSchema = new mongoose.Schema({
   },
   pushSubscriptions: { type: [Object], default: [] },
   emailReminders: { type: Boolean, default: false },
+  emailVerified: { type: Boolean, default: false },
+  emailVerificationTokenHash: { type: String, index: true },
+  emailVerificationExpiresAt: { type: Date },
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

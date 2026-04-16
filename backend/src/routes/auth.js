@@ -4,7 +4,7 @@ const { body } = require('express-validator');
 const rateLimit = require('express-rate-limit');
 const auth = require('../middlewares/auth');
 const validate = require('../middlewares/validate');
-const { register, login, refreshToken, getMe, googleLogin, logout } = require('../controllers/authController');
+const { register, login, refreshToken, getMe, googleLogin, logout, verifyEmail, resendVerification } = require('../controllers/authController');
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -25,11 +25,23 @@ const loginValidation = [
   body('password').notEmpty().withMessage('Password is required'),
 ];
 
+const resendLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  message: { message: 'Too many verification emails, please try again later' }
+});
+
+const resendValidation = [
+  body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),
+];
+
 router.post('/register', authLimiter, registerValidation, validate, register);
 router.post('/login', authLimiter, loginValidation, validate, login);
 router.post('/refresh', refreshToken);
 router.post('/google', authLimiter, googleLogin);
 router.post('/logout', logout);
 router.get('/me', auth, getMe);
+router.get('/verify-email', verifyEmail);
+router.post('/resend-verification', resendLimiter, resendValidation, validate, resendVerification);
 
 module.exports = router;

@@ -68,4 +68,32 @@ async function sendReminder({ to, module }) {
   }
 }
 
-module.exports = { sendReminder, isEnabled };
+async function sendVerificationEmail({ to, url, name }) {
+  if (!resend) return { skipped: 'no-api-key' };
+
+  const firstName = (name || '').trim().split(' ')[0] || 'there';
+  const title = `Verify your email`;
+  const body = `Hey ${firstName}, welcome to LifeOS! Tap the button below to confirm your email address. This link expires in 24 hours.`;
+
+  try {
+    const result = await resend.emails.send({
+      from: FROM,
+      to,
+      subject: 'Verify your email for LifeOS',
+      html: wrap({
+        preheader: 'Confirm your email to finish creating your LifeOS account.',
+        title,
+        body,
+        ctaLabel: 'Verify email',
+        ctaUrl: url,
+        footer: `If you didn't sign up for LifeOS, you can ignore this message.`,
+      }),
+    });
+    return { ok: true, id: result.data?.id };
+  } catch (err) {
+    console.error(`[email] verification failed for ${to}:`, err.message);
+    return { error: err.message };
+  }
+}
+
+module.exports = { sendReminder, sendVerificationEmail, isEnabled };
