@@ -74,7 +74,11 @@ export default function WelcomePage() {
     <div className="min-h-screen w-full bg-background flex flex-col">
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 md:px-16 py-5 animate-fade-in">
-        <span className="text-lg font-semibold tracking-tight">LifeOS</span>
+        <div className="flex items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/lifeos-logo.svg" alt="" className="h-8 w-auto" />
+          <span className="text-lg font-semibold tracking-tight">LifeOS</span>
+        </div>
         <Link href="/login">
           <Button variant="ghost" size="sm">Sign in</Button>
         </Link>

@@ -62,9 +62,13 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar>
-      <SidebarHeader className="px-4 py-5">
-        <span className="text-lg font-semibold tracking-tight">LifeOS</span>
+    <Sidebar collapsible="icon">
+      <SidebarHeader className="px-4 py-5 group-data-[collapsible=icon]:px-2">
+        <div className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/lifeos-logo.svg" alt="LifeOS" className="h-7 w-auto shrink-0" />
+          <span className="text-lg font-semibold tracking-tight group-data-[collapsible=icon]:hidden">LifeOS</span>
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
@@ -86,14 +90,14 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="px-4 py-4 space-y-2">
+      <SidebarFooter className="px-4 py-4 space-y-2 group-data-[collapsible=icon]:px-2">
         {/* User row */}
         {user && (
-          <div className="flex items-center gap-3 px-2 py-2 rounded-lg">
+          <div className="flex items-center gap-3 px-2 py-2 rounded-lg group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center">
             <div className="h-7 w-7 rounded-full bg-foreground text-background flex items-center justify-center text-[11px] font-semibold shrink-0">
               {initials}
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 group-data-[collapsible=icon]:hidden">
               <p className="text-sm font-medium truncate leading-none">{user.name}</p>
               <p className="text-[11px] text-muted-foreground truncate mt-0.5">Lvl {user.level} · {user.xp} XP</p>
             </div>
