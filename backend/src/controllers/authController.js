@@ -1,10 +1,26 @@
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const admin = require('firebase-admin');
 const User = require('../models/User');
 const { createAccessToken, createRefreshToken } = require('../utils/tokens');
+const { sendVerificationEmail } = require('../services/email');
 
 const isProd = process.env.NODE_ENV === 'production';
+const APP_URL = process.env.APP_URL || 'https://www.smarthabittracker.online';
+const VERIFICATION_TTL_MS = 24 * 60 * 60 * 1000;
+
+function hashToken(raw) {
+  return crypto.createHash('sha256').update(raw).digest('hex');
+}
+
+async function issueVerificationToken(user) {
+  const raw = crypto.randomBytes(32).toString('hex');
+  user.emailVerificationTokenHash = hashToken(raw);
+  user.emailVerificationExpiresAt = new Date(Date.now() + VERIFICATION_TTL_MS);
+  await user.save();
+  return raw;
+}
 
 function setCookieAndRespond(res, user, accessToken, refreshToken) {
   res.cookie('jid', refreshToken, {
@@ -40,14 +56,22 @@ exports.register = async (req, res, next) => {
     }
 
     const hashed = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: hashed });
+    const user = await User.create({ name, email, password: hashed, emailVerified: false });
 
-    const accessToken = createAccessToken({ id: user._id });
-    const refreshToken = createRefreshToken({ id: user._id });
-    user.refreshToken = refreshToken;
-    await user.save();
+    const rawToken = await issueVerificationToken(user);
+    const verifyUrl = `${APP_URL}/verify?token=${rawToken}`;
+    const result = await sendVerificationEmail({ to: email, url: verifyUrl, name });
 
-    setCookieAndRespond(res, user, accessToken, refreshToken);
+    if (result?.error) {
+      return res.status(502).json({ message: 'Could not send verification email. Try again.' });
+    }
+
+    res.status(201).json({
+      ok: true,
+      requiresVerification: true,
+      email,
+      message: 'Check your inbox to verify your email.',
+    });
   } catch (err) { next(err); }
 };
 
@@ -59,6 +83,14 @@ exports.login = async (req, res, next) => {
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(401).json({ message: 'Invalid credentials' });
+
+    if (!user.emailVerified) {
+      return res.status(403).json({
+        message: 'Please verify your email before signing in.',
+        requiresVerification: true,
+        email: user.email,
+      });
+    }
 
     const accessToken = createAccessToken({ id: user._id });
     const refreshToken = createRefreshToken({ id: user._id });
@@ -83,7 +115,12 @@ exports.googleLogin = async (req, res, next) => {
         name: name || email.split('@')[0],
         email,
         password: await bcrypt.hash(uid + Date.now(), 10),
+        emailVerified: true,
       });
+    } else if (!user.emailVerified) {
+      user.emailVerified = true;
+      user.emailVerificationTokenHash = undefined;
+      user.emailVerificationExpiresAt = undefined;
     }
 
     const accessToken = createAccessToken({ id: user._id });
@@ -98,6 +135,44 @@ exports.googleLogin = async (req, res, next) => {
     }
     next(err);
   }
+};
+
+exports.verifyEmail = async (req, res, next) => {
+  try {
+    const token = (req.query.token || '').toString();
+    if (!token) return res.status(400).json({ message: 'Missing verification token' });
+
+    const user = await User.findOne({
+      emailVerificationTokenHash: hashToken(token),
+      emailVerificationExpiresAt: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'This verification link is invalid or has expired.' });
+    }
+
+    user.emailVerified = true;
+    user.emailVerificationTokenHash = undefined;
+    user.emailVerificationExpiresAt = undefined;
+    await user.save();
+
+    res.json({ ok: true, message: 'Email verified. You can now sign in.' });
+  } catch (err) { next(err); }
+};
+
+exports.resendVerification = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = email ? await User.findOne({ email }) : null;
+
+    if (user && !user.emailVerified) {
+      const rawToken = await issueVerificationToken(user);
+      const verifyUrl = `${APP_URL}/verify?token=${rawToken}`;
+      await sendVerificationEmail({ to: user.email, url: verifyUrl, name: user.name });
+    }
+
+    res.json({ ok: true, message: 'If that account needs verification, we sent a new link.' });
+  } catch (err) { next(err); }
 };
 
 exports.refreshToken = async (req, res, next) => {

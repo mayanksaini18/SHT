@@ -2,16 +2,18 @@ import { API_URL } from "./constants";
 
 class ApiError extends Error {
   status: number;
-  constructor(message: string, status: number) {
+  data: Record<string, unknown>;
+  constructor(message: string, status: number, data: Record<string, unknown> = {}) {
     super(message);
     this.status = status;
+    this.data = data;
   }
 }
 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const body = await res.json().catch(() => ({ message: "Request failed" }));
-    throw new ApiError(body.message || "Request failed", res.status);
+    throw new ApiError(body.message || "Request failed", res.status, body);
   }
   return res.json();
 }

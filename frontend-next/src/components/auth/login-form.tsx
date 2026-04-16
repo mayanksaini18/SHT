@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { fetchApi } from "@/lib/api";
+import { fetchApi, ApiError } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
 import { GoogleLogin } from "@/components/auth/google-login";
 import type { AuthResponse } from "@/types/user";
@@ -17,12 +17,17 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [needsVerification, setNeedsVerification] = useState<string | null>(null);
+  const [resending, setResending] = useState(false);
+  const [resendNote, setResendNote] = useState("");
   const setUser = useAuthStore((s) => s.setUser);
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setNeedsVerification(null);
+    setResendNote("");
     setLoading(true);
     try {
       const data = await fetchApi<AuthResponse>("/auth/login", {
@@ -37,9 +42,30 @@ export function LoginForm() {
       setUser(data.user);
       router.push("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      if (err instanceof ApiError && err.data?.requiresVerification) {
+        setNeedsVerification((err.data.email as string) || email);
+      } else {
+        setError(err instanceof Error ? err.message : "Login failed");
+      }
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleResend() {
+    if (!needsVerification) return;
+    setResending(true);
+    setResendNote("");
+    try {
+      await fetchApi("/auth/resend-verification", {
+        method: "POST",
+        body: JSON.stringify({ email: needsVerification }),
+      });
+      setResendNote("Sent. Check your inbox.");
+    } catch (err) {
+      setResendNote(err instanceof Error ? err.message : "Could not resend.");
+    } finally {
+      setResending(false);
     }
   }
 
@@ -62,6 +88,27 @@ export function LoginForm() {
       {error && (
         <div className="rounded-lg border border-destructive/30 bg-destructive/8 px-4 py-3">
           <p className="text-sm text-destructive">{error}</p>
+        </div>
+      )}
+
+      {needsVerification && (
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/8 px-4 py-3 space-y-2">
+          <p className="text-sm text-foreground">
+            Please verify your email to continue. We sent a link to{" "}
+            <span className="font-medium">{needsVerification}</span>.
+          </p>
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleResend}
+              disabled={resending}
+            >
+              {resending ? "Sending…" : "Resend email"}
+            </Button>
+            {resendNote && <span className="text-xs text-muted-foreground">{resendNote}</span>}
+          </div>
         </div>
       )}
 
