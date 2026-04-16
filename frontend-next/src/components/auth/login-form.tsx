@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +22,9 @@ export function LoginForm() {
   const [resendNote, setResendNote] = useState("");
   const setUser = useAuthStore((s) => s.setUser);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const verified = searchParams.get("verified");
+  const verifyReason = searchParams.get("reason");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -84,6 +87,22 @@ export function LoginForm() {
           Sign in to your account
         </p>
       </div>
+
+      {verified === "1" && (
+        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/8 px-4 py-3">
+          <p className="text-sm text-foreground">Email verified. Sign in to continue.</p>
+        </div>
+      )}
+
+      {verified === "0" && (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/8 px-4 py-3">
+          <p className="text-sm text-destructive">
+            {verifyReason === "expired"
+              ? "That verification link is invalid or has expired. Sign in and we'll send a new one."
+              : "Missing verification token."}
+          </p>
+        </div>
+      )}
 
       {error && (
         <div className="rounded-lg border border-destructive/30 bg-destructive/8 px-4 py-3">
