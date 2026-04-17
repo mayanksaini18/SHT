@@ -51,6 +51,26 @@ export function useCreateHabit() {
   });
 }
 
+export function useUpdateHabit() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: { title?: string; description?: string; frequency?: string };
+    }) =>
+      fetchApi<Habit>(`/habits/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["habits"] });
+    },
+  });
+}
+
 export function useDeleteHabit() {
   const queryClient = useQueryClient();
   return useMutation({
