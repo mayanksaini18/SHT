@@ -85,12 +85,7 @@ export function HabitCard({ habit, onCheckin }: HabitCardProps) {
     <>
       <div className={`border rounded-xl transition-colors ${hasCheckedToday ? "bg-muted/30" : ""}`}>
         {/* Main row */}
-        <div
-          className={`p-4 flex items-center justify-between ${
-            hasCheckedToday ? "" : "cursor-pointer hover:bg-muted/50 active:scale-[0.98]"
-          }`}
-          onClick={hasCheckedToday ? undefined : onCheckin}
-        >
+        <div className="p-4 flex items-center justify-between">
           <div className="min-w-0">
             <p className="font-medium truncate">{habit.title}</p>
             <div className="flex items-center gap-2 mt-0.5">
@@ -131,15 +126,18 @@ export function HabitCard({ habit, onCheckin }: HabitCardProps) {
             </button>
 
             {/* Check circle */}
-            <div
+            <button
+              type="button"
+              onClick={hasCheckedToday ? undefined : onCheckin}
+              disabled={hasCheckedToday}
               className={`h-8 w-8 rounded-full border-2 flex items-center justify-center transition-colors ${
                 hasCheckedToday
                   ? "bg-foreground border-foreground text-background"
-                  : "border-border"
+                  : "border-border cursor-pointer hover:border-foreground/50"
               }`}
             >
               {hasCheckedToday && <Tick01Icon className="h-4 w-4" />}
-            </div>
+            </button>
           </div>
         </div>
 
