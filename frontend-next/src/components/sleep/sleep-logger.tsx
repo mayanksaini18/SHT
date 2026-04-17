@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useLogSleep } from "@/hooks/use-sleep";
@@ -10,46 +9,146 @@ import { toast } from "sonner";
 
 const QUALITY_LABELS = ["", "Terrible", "Poor", "Fair", "Good", "Excellent"];
 
+const HOURS = Array.from({ length: 12 }, (_, i) => i + 1);
+const MINUTES = [0, 15, 30, 45];
+
+function pad(n: number) {
+  return n.toString().padStart(2, "0");
+}
+
+function formatTime(hour: number, minute: number, period: "AM" | "PM") {
+  return `${hour}:${pad(minute)} ${period}`;
+}
+
+function to24(hour: number, period: "AM" | "PM") {
+  if (period === "AM" && hour === 12) return 0;
+  if (period === "PM" && hour !== 12) return hour + 12;
+  return hour;
+}
+
+function calcDuration(
+  bedH: number, bedM: number, bedP: "AM" | "PM",
+  wakeH: number, wakeM: number, wakeP: "AM" | "PM"
+) {
+  const bedMins = to24(bedH, bedP) * 60 + bedM;
+  const wakeMins = to24(wakeH, wakeP) * 60 + wakeM;
+  let diff = wakeMins - bedMins;
+  if (diff <= 0) diff += 24 * 60;
+  return diff / 60;
+}
+
+function TimeSelector({
+  label,
+  hour,
+  minute,
+  period,
+  onHourChange,
+  onMinuteChange,
+  onPeriodChange,
+}: {
+  label: string;
+  hour: number;
+  minute: number;
+  period: "AM" | "PM";
+  onHourChange: (h: number) => void;
+  onMinuteChange: (m: number) => void;
+  onPeriodChange: (p: "AM" | "PM") => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label className="text-sm">{label}</Label>
+      <div className="flex items-center gap-1.5">
+        {/* Hour */}
+        <select
+          value={hour}
+          onChange={(e) => onHourChange(Number(e.target.value))}
+          className="h-10 rounded-lg border border-input bg-transparent px-2 text-sm font-medium tabular-nums focus:border-ring focus:ring-3 focus:ring-ring/50 outline-none appearance-none cursor-pointer"
+        >
+          {HOURS.map((h) => (
+            <option key={h} value={h}>{pad(h)}</option>
+          ))}
+        </select>
+
+        <span className="text-muted-foreground font-medium">:</span>
+
+        {/* Minute */}
+        <select
+          value={minute}
+          onChange={(e) => onMinuteChange(Number(e.target.value))}
+          className="h-10 rounded-lg border border-input bg-transparent px-2 text-sm font-medium tabular-nums focus:border-ring focus:ring-3 focus:ring-ring/50 outline-none appearance-none cursor-pointer"
+        >
+          {MINUTES.map((m) => (
+            <option key={m} value={m}>{pad(m)}</option>
+          ))}
+        </select>
+
+        {/* AM/PM */}
+        <div className="flex rounded-lg border border-input overflow-hidden">
+          {(["AM", "PM"] as const).map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => onPeriodChange(p)}
+              className={`px-3 h-10 text-xs font-medium transition-colors ${
+                period === p
+                  ? "bg-foreground text-background"
+                  : "hover:bg-muted"
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function SleepLogger() {
-  const [duration, setDuration] = useState("");
+  const [bedHour, setBedHour] = useState(10);
+  const [bedMinute, setBedMinute] = useState(30);
+  const [bedPeriod, setBedPeriod] = useState<"AM" | "PM">("PM");
+
+  const [wakeHour, setWakeHour] = useState(6);
+  const [wakeMinute, setWakeMinute] = useState(30);
+  const [wakePeriod, setWakePeriod] = useState<"AM" | "PM">("AM");
+
   const [quality, setQuality] = useState(0);
-  const [bedtime, setBedtime] = useState("");
-  const [wakeTime, setWakeTime] = useState("");
   const [notes, setNotes] = useState("");
   const logSleep = useLogSleep();
 
-  function timeToISO(timeStr: string, baseDate: Date): string {
-    const [hours, minutes] = timeStr.split(":").map(Number);
-    const d = new Date(baseDate);
-    d.setHours(hours, minutes, 0, 0);
+  const duration = calcDuration(bedHour, bedMinute, bedPeriod, wakeHour, wakeMinute, wakePeriod);
+  const durationDisplay = `${Math.floor(duration)}h ${Math.round((duration % 1) * 60)}m`;
+
+  const buildISO = useCallback((hour: number, minute: number, period: "AM" | "PM", dateOffset: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() + dateOffset);
+    d.setHours(to24(hour, period), minute, 0, 0);
     return d.toISOString();
-  }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!duration || !quality) { toast.error("Duration and quality are required"); return; }
-
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-
-    // bedtime before noon assumed to be same day, afternoon/evening assumed previous day
-    let bedtimeISO: string | undefined;
-    if (bedtime) {
-      const [h] = bedtime.split(":").map(Number);
-      bedtimeISO = timeToISO(bedtime, h < 12 ? today : yesterday);
+    if (!quality) {
+      toast.error("Please select a sleep quality");
+      return;
     }
+
+    const bed24 = to24(bedHour, bedPeriod);
+    const bedtimeISO = buildISO(bedHour, bedMinute, bedPeriod, bed24 >= 12 ? -1 : 0);
+    const wakeTimeISO = buildISO(wakeHour, wakeMinute, wakePeriod, 0);
 
     try {
       await logSleep.mutateAsync({
-        duration: parseFloat(duration),
+        duration: Math.round(duration * 2) / 2,
         quality,
         bedtime: bedtimeISO,
-        wakeTime: wakeTime ? timeToISO(wakeTime, today) : undefined,
+        wakeTime: wakeTimeISO,
         notes: notes || undefined,
       });
       toast.success("Sleep logged!");
-      setDuration(""); setQuality(0); setBedtime(""); setWakeTime(""); setNotes("");
+      setQuality(0);
+      setNotes("");
     } catch {
       toast.error("Failed to log sleep");
     }
@@ -57,24 +156,30 @@ export function SleepLogger() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label className="text-sm">Bedtime</Label>
-          <Input type="time" value={bedtime} onChange={(e) => setBedtime(e.target.value)} />
-        </div>
-        <div className="space-y-2">
-          <Label className="text-sm">Wake time</Label>
-          <Input type="time" value={wakeTime} onChange={(e) => setWakeTime(e.target.value)} />
-        </div>
-      </div>
+      <TimeSelector
+        label="Bedtime"
+        hour={bedHour}
+        minute={bedMinute}
+        period={bedPeriod}
+        onHourChange={setBedHour}
+        onMinuteChange={setBedMinute}
+        onPeriodChange={setBedPeriod}
+      />
 
-      <div className="space-y-2">
-        <Label className="text-sm">Hours slept</Label>
-        <Input
-          type="number" step="0.5" min="0" max="24"
-          placeholder="e.g. 7.5"
-          value={duration} onChange={(e) => setDuration(e.target.value)}
-        />
+      <TimeSelector
+        label="Wake time"
+        hour={wakeHour}
+        minute={wakeMinute}
+        period={wakePeriod}
+        onHourChange={setWakeHour}
+        onMinuteChange={setWakeMinute}
+        onPeriodChange={setWakePeriod}
+      />
+
+      {/* Auto-calculated duration */}
+      <div className="rounded-xl border bg-muted/30 p-4 text-center">
+        <p className="text-xs text-muted-foreground mb-1">Total sleep</p>
+        <p className="text-2xl font-semibold tabular-nums">{durationDisplay}</p>
       </div>
 
       <div className="space-y-2">
@@ -82,7 +187,9 @@ export function SleepLogger() {
         <div className="flex gap-2">
           {[1, 2, 3, 4, 5].map((q) => (
             <button
-              key={q} type="button" onClick={() => setQuality(q)}
+              key={q}
+              type="button"
+              onClick={() => setQuality(q)}
               className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${
                 quality === q
                   ? "bg-foreground text-background"
@@ -95,7 +202,13 @@ export function SleepLogger() {
         </div>
       </div>
 
-      <Textarea placeholder="Notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="resize-none" />
+      <Textarea
+        placeholder="Notes (optional)"
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        rows={2}
+        className="resize-none"
+      />
 
       <Button type="submit" disabled={logSleep.isPending} className="w-full h-10">
         {logSleep.isPending ? "Logging..." : "Log sleep"}
