@@ -7,6 +7,7 @@ const { logMood, getMoods, getMoodTrends, updateMood, deleteMood } = require('..
 
 const moodValidation = [
   body('score').isInt({ min: 1, max: 5 }).withMessage('Score must be between 1 and 5'),
+  body('energy').optional().isInt({ min: 1, max: 5 }).withMessage('Energy must be between 1 and 5'),
   body('notes').optional().trim().isLength({ max: 1000 }).withMessage('Notes must be under 1000 characters'),
   body('tags').optional().isArray().withMessage('Tags must be an array'),
 ];

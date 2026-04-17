@@ -83,7 +83,7 @@ export default function InsightsPage() {
               <CorrelationCard key={c.id} c={c} />
             ))}
             <p className="text-[10px] text-muted-foreground px-1">
-              Based on {correlationData.dataPoints.mood} mood · {correlationData.dataPoints.sleep} sleep · {correlationData.dataPoints.water} water · {correlationData.dataPoints.fitness} fitness entries in the last 30 days.
+              Based on {correlationData.dataPoints.mood} mood · {correlationData.dataPoints.energy} energy · {correlationData.dataPoints.sleep} sleep · {correlationData.dataPoints.water} water · {correlationData.dataPoints.fitness} fitness entries in the last 30 days.
             </p>
           </div>
         )}

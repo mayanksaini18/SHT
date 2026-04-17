@@ -3,6 +3,7 @@
 import { MoodLogger } from "@/components/mood/mood-logger";
 import { MoodChart } from "@/components/mood/mood-chart";
 import { MoodHistory } from "@/components/mood/mood-history";
+import { MoodInsights } from "@/components/mood/mood-insights";
 
 export default function MoodPage() {
   return (
@@ -21,6 +22,7 @@ export default function MoodPage() {
         </div>
         <div className="lg:col-span-3 space-y-10">
           <MoodChart />
+          <MoodInsights />
           <MoodHistory />
         </div>
       </div>

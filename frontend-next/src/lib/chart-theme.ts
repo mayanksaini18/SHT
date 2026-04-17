@@ -50,4 +50,9 @@ export const CHART_COLORS = {
     barHover: "rgba(34, 211, 238, 0.85)",
     barGoal:  "rgba(34, 211, 238, 0.85)",   // hit goal — full opacity
   },
+  energy: {
+    line:   "#fb923c",                       // orange-400
+    fill:   "rgba(251, 146, 60, 0.12)",
+    point:  "#fb923c",
+  },
 } as const;

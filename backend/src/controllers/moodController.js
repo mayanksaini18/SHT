@@ -6,12 +6,12 @@ function getUTCStartOfDay(date) {
 
 exports.logMood = async (req, res, next) => {
   try {
-    const { score, notes, tags } = req.body;
+    const { score, energy, notes, tags } = req.body;
     const today = getUTCStartOfDay(new Date());
 
     const mood = await Mood.findOneAndUpdate(
       { user: req.user._id, date: today },
-      { score, notes, tags },
+      { score, energy, notes, tags },
       { upsert: true, new: true, runValidators: true }
     );
     res.status(201).json(mood);
@@ -51,6 +51,7 @@ exports.getMoodTrends = async (req, res, next) => {
     const trends = moods.map(m => ({
       date: m.date.toISOString().slice(0, 10),
       score: m.score,
+      energy: m.energy ?? null,
       tags: m.tags
     }));
 
@@ -58,7 +59,12 @@ exports.getMoodTrends = async (req, res, next) => {
       ? Math.round((moods.reduce((sum, m) => sum + m.score, 0) / moods.length) * 10) / 10
       : 0;
 
-    res.json({ trends, avgScore, totalEntries: moods.length });
+    const energyEntries = moods.filter(m => m.energy != null);
+    const avgEnergy = energyEntries.length
+      ? Math.round((energyEntries.reduce((sum, m) => sum + m.energy, 0) / energyEntries.length) * 10) / 10
+      : 0;
+
+    res.json({ trends, avgScore, avgEnergy, totalEntries: moods.length });
   } catch (err) { next(err); }
 };
 
