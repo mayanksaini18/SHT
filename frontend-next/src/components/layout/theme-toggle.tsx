@@ -28,15 +28,16 @@ export function ThemeToggle() {
     });
 
     transition.ready.then(() => {
+      const endRadius = Math.hypot(window.innerWidth, window.innerHeight);
       document.documentElement.animate(
         {
           clipPath: [
-            "polygon(100% -100%, 200% -200%, 300% -100%, 200% 0%)",
-            "polygon(-150% 150%, 200% -200%, 300% -100%, -50% 250%)",
+            "circle(0px at 100% 0%)",
+            `circle(${endRadius}px at 100% 0%)`,
           ],
         },
         {
-          duration: 3000,
+          duration: 1200,
           easing: "cubic-bezier(0.4, 0, 0.2, 1)",
           pseudoElement: "::view-transition-new(root)",
         }
