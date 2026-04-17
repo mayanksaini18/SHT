@@ -7,46 +7,48 @@ interface Props {
 }
 
 const WEEKS = 16;
-const DAYS_TO_SHOW = WEEKS * 7;
 
 function getDateKey(date: Date) {
-  return date.toISOString().slice(0, 10);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 export function HabitHeatmap({ habit }: Props) {
   const checkinSet = new Set(
-    (habit.checkins ?? []).map((c) => new Date(c.date).toISOString().slice(0, 10))
+    (habit.checkins ?? []).map((c) => getDateKey(new Date(c.date)))
   );
 
-  // Build grid: from (today - DAYS_TO_SHOW + 1) to today
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const days: { dateKey: string; checked: boolean; isToday: boolean }[] = [];
-  for (let i = DAYS_TO_SHOW - 1; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
+  // Find the start date: go back enough days so that after padding to
+  // Sunday the grid has exactly WEEKS columns ending on today's week.
+  const todayDay = today.getDay(); // 0=Sun
+  const endOfGrid = new Date(today);
+  endOfGrid.setDate(today.getDate() + (6 - todayDay)); // Saturday of this week
+
+  const startOfGrid = new Date(endOfGrid);
+  startOfGrid.setDate(endOfGrid.getDate() - WEEKS * 7 + 1); // Sunday, WEEKS ago
+
+  const totalCells = WEEKS * 7;
+
+  const cells: { dateKey: string; checked: boolean; isToday: boolean; future: boolean }[] = [];
+  for (let i = 0; i < totalCells; i++) {
+    const d = new Date(startOfGrid);
+    d.setDate(startOfGrid.getDate() + i);
     const dateKey = getDateKey(d);
-    days.push({ dateKey, checked: checkinSet.has(dateKey), isToday: i === 0 });
+    const isToday = dateKey === getDateKey(today);
+    const future = d > today;
+    cells.push({ dateKey, checked: checkinSet.has(dateKey), isToday, future });
   }
 
-  // Pad front so grid starts on Sunday
-  const firstDay = new Date(today);
-  firstDay.setDate(today.getDate() - (DAYS_TO_SHOW - 1));
-  const padCount = firstDay.getDay(); // 0=Sun
-  const paddedDays = [
-    ...Array(padCount).fill(null),
-    ...days,
-  ];
-
-  const weekLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const monthLabels: { label: string; col: number }[] = [];
   let lastMonth = -1;
   for (let col = 0; col < WEEKS; col++) {
-    const dayIdx = col * 7 - padCount;
-    if (dayIdx < 0 || dayIdx >= days.length) continue;
-    const d = new Date(today);
-    d.setDate(today.getDate() - (DAYS_TO_SHOW - 1 - dayIdx));
+    const d = new Date(startOfGrid);
+    d.setDate(startOfGrid.getDate() + col * 7);
     if (d.getMonth() !== lastMonth) {
       monthLabels.push({
         label: d.toLocaleDateString("en-US", { month: "short" }),
@@ -55,6 +57,9 @@ export function HabitHeatmap({ habit }: Props) {
       lastMonth = d.getMonth();
     }
   }
+
+  const weekLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const daysShown = cells.filter((c) => !c.future).length;
 
   return (
     <div className="space-y-2">
@@ -92,8 +97,8 @@ export function HabitHeatmap({ habit }: Props) {
           {Array.from({ length: WEEKS }).map((_, weekIdx) => (
             <div key={weekIdx} className="flex flex-col gap-1">
               {Array.from({ length: 7 }).map((_, dayIdx) => {
-                const cell = paddedDays[weekIdx * 7 + dayIdx];
-                if (!cell) {
+                const cell = cells[weekIdx * 7 + dayIdx];
+                if (!cell || cell.future) {
                   return <div key={dayIdx} className="aspect-square rounded-sm" />;
                 }
                 return (
