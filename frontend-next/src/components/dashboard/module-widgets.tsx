@@ -64,7 +64,11 @@ export function ModuleWidgets() {
       label: "Mood",
       value: latestMood ? `${latestMood.score}/5` : "No entry",
       bar: latestMood ? <GoalBar value={latestMood.score} max={moodGoal} colorClass="bg-violet-400" /> : null,
-      subtext: latestMood ? `Goal ≥ ${moodGoal}/5` : null,
+      subtext: latestMood
+        ? latestMood.energy
+          ? `⚡ Energy ${latestMood.energy}/5 · Goal ≥ ${moodGoal}/5`
+          : `Goal ≥ ${moodGoal}/5`
+        : null,
     },
     {
       href: "/sleep",

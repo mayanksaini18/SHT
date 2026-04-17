@@ -14,6 +14,14 @@ const MOOD_EMOJIS = [
   { score: 5, emoji: "😄", label: "Great" },
 ];
 
+const ENERGY_LEVELS = [
+  { score: 1, emoji: "🪫", label: "Drained" },
+  { score: 2, emoji: "😴", label: "Low" },
+  { score: 3, emoji: "🙂", label: "Moderate" },
+  { score: 4, emoji: "⚡", label: "High" },
+  { score: 5, emoji: "🔥", label: "Wired" },
+];
+
 const COMMON_TAGS = [
   "stressed", "energetic", "tired", "anxious", "calm",
   "happy", "focused", "motivated", "lonely", "grateful",
@@ -21,6 +29,7 @@ const COMMON_TAGS = [
 
 export function MoodLogger() {
   const [score, setScore] = useState<number>(0);
+  const [energy, setEnergy] = useState<number>(0);
   const [notes, setNotes] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const logMood = useLogMood();
@@ -36,11 +45,13 @@ export function MoodLogger() {
     try {
       await logMood.mutateAsync({
         score,
+        energy: energy || undefined,
         notes: notes || undefined,
         tags: tags.length ? tags : undefined,
       });
       toast.success("Mood logged!");
       setScore(0);
+      setEnergy(0);
       setNotes("");
       setTags([]);
     } catch {
@@ -65,6 +76,26 @@ export function MoodLogger() {
             >
               <span className="text-2xl">{m.emoji}</span>
               <span className="text-[11px] text-muted-foreground">{m.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h2 className="font-medium mb-4">Energy level</h2>
+        <div className="flex gap-3">
+          {ENERGY_LEVELS.map((e) => (
+            <button
+              key={e.score}
+              onClick={() => setEnergy(e.score)}
+              className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl transition-all ${
+                energy === e.score
+                  ? "bg-foreground/5 ring-1 ring-foreground/20 scale-105"
+                  : "hover:bg-muted"
+              }`}
+            >
+              <span className="text-2xl">{e.emoji}</span>
+              <span className="text-[11px] text-muted-foreground">{e.label}</span>
             </button>
           ))}
         </div>

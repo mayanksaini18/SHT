@@ -141,6 +141,7 @@ exports.getCorrelations = async (req, res, next) => {
 
     // Build date-keyed maps
     const moodByDate = Object.fromEntries(moods.map(m => [m.date.toISOString().slice(0, 10), m.score]));
+    const energyByDate = Object.fromEntries(moods.filter(m => m.energy != null).map(m => [m.date.toISOString().slice(0, 10), m.energy]));
     const sleepByDate = Object.fromEntries(sleeps.map(s => [s.date.toISOString().slice(0, 10), s.duration]));
     const waterByDate = Object.fromEntries(waters.map(w => [w.date.toISOString().slice(0, 10), w.glasses]));
     const fitnessDates = new Set(fitness.map(f => f.date.toISOString().slice(0, 10)));
@@ -286,7 +287,84 @@ exports.getCorrelations = async (req, res, next) => {
       }
     }
 
-    res.json({ correlations, dataPoints: { mood: moods.length, sleep: sleeps.length, water: waters.length, fitness: fitness.length } });
+    // 6. Sleep duration → next-day energy
+    const sleepEnergyPairs = sleeps
+      .map(s => {
+        const sleepDate = new Date(s.date);
+        const nextDay = new Date(sleepDate);
+        nextDay.setUTCDate(sleepDate.getUTCDate() + 1);
+        const nextKey = nextDay.toISOString().slice(0, 10);
+        const energy = energyByDate[nextKey];
+        return energy != null ? { sleep: s.duration, energy } : null;
+      })
+      .filter(Boolean);
+
+    if (sleepEnergyPairs.length >= 4) {
+      const r = pearson(sleepEnergyPairs.map(p => p.sleep), sleepEnergyPairs.map(p => p.energy));
+      const str = strength(r);
+      if (str !== 'weak') {
+        correlations.push({
+          id: 'sleep-energy',
+          title: r > 0 ? 'More sleep → higher energy' : 'Sleep isn\'t boosting your energy',
+          description: r > 0
+            ? `After longer sleep, your energy levels tend to be higher. Based on ${sleepEnergyPairs.length} data points.`
+            : `Longer sleep doesn't seem to boost your energy. You might be oversleeping or your sleep quality may need attention.`,
+          strength: str,
+          direction: direction(r),
+          r,
+        });
+      }
+    }
+
+    // 7. Exercise → same-day energy
+    const energyDates = Object.keys(energyByDate);
+    const exerciseEnergyPairs = energyDates
+      .map(d => ({ exercised: fitnessDates.has(d) ? 1 : 0, energy: energyByDate[d] }));
+
+    if (exerciseEnergyPairs.length >= 4) {
+      const r = pearson(
+        exerciseEnergyPairs.map(p => p.exercised),
+        exerciseEnergyPairs.map(p => p.energy)
+      );
+      const str = strength(r);
+      if (str !== 'weak') {
+        correlations.push({
+          id: 'exercise-energy',
+          title: r > 0 ? 'Exercise fuels your energy' : 'Exercise days feel draining',
+          description: r > 0
+            ? `On workout days, your energy levels are noticeably higher. Movement is working for you.`
+            : `You report lower energy on exercise days. Try lighter workouts or exercising at a different time.`,
+          strength: str,
+          direction: direction(r),
+          r,
+        });
+      }
+    }
+
+    // 8. Water → same-day energy
+    const waterEnergyDates = Object.keys(waterByDate).filter(d => energyByDate[d] != null);
+    if (waterEnergyDates.length >= 4) {
+      const r = pearson(
+        waterEnergyDates.map(d => waterByDate[d]),
+        waterEnergyDates.map(d => energyByDate[d])
+      );
+      const str = strength(r);
+      if (str !== 'weak') {
+        correlations.push({
+          id: 'water-energy',
+          title: r > 0 ? 'Hydration powers your energy' : 'Water intake and energy don\'t align',
+          description: r > 0
+            ? `Days with higher water intake correlate with more energy. Keep drinking!`
+            : `More water doesn't seem to boost your energy — consider whether other factors like sleep or stress are dominating.`,
+          strength: str,
+          direction: direction(r),
+          r,
+        });
+      }
+    }
+
+    const energyCount = moods.filter(m => m.energy != null).length;
+    res.json({ correlations, dataPoints: { mood: moods.length, energy: energyCount, sleep: sleeps.length, water: waters.length, fitness: fitness.length } });
   } catch (err) { next(err); }
 };
 

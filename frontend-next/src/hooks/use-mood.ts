@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchApi } from "@/lib/api";
-import type { Mood, MoodTrend } from "@/types/mood";
+import type { Mood, MoodTrendsResponse } from "@/types/mood";
 
 export function useMoods(limit = 30) {
   return useQuery<Mood[]>({
@@ -12,7 +12,7 @@ export function useMoods(limit = 30) {
 }
 
 export function useMoodTrends() {
-  return useQuery<MoodTrend[]>({
+  return useQuery<MoodTrendsResponse>({
     queryKey: ["moods", "trends"],
     queryFn: () => fetchApi("/mood/trends"),
   });
@@ -21,7 +21,7 @@ export function useMoodTrends() {
 export function useLogMood() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: { score: number; notes?: string; tags?: string[] }) =>
+    mutationFn: (data: { score: number; energy?: number; notes?: string; tags?: string[] }) =>
       fetchApi<Mood>("/mood", {
         method: "POST",
         body: JSON.stringify(data),

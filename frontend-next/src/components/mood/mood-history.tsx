@@ -58,11 +58,16 @@ export function MoodHistory() {
                   weekday: "short", month: "short", day: "numeric",
                 })}
               </p>
-              {mood.tags.length > 0 && (
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {mood.tags.join(", ")}
-                </p>
-              )}
+              <div className="flex items-center gap-2 mt-0.5">
+                {mood.energy != null && (
+                  <span className="text-xs text-muted-foreground">⚡ {mood.energy}/5</span>
+                )}
+                {mood.tags.length > 0 && (
+                  <span className="text-xs text-muted-foreground">
+                    {mood.tags.join(", ")}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           <Button

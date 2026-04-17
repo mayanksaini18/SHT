@@ -19,5 +19,5 @@ export interface Correlation {
 
 export interface CorrelationResult {
   correlations: Correlation[];
-  dataPoints: { mood: number; sleep: number; water: number; fitness: number };
+  dataPoints: { mood: number; energy: number; sleep: number; water: number; fitness: number };
 }
